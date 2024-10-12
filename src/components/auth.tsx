@@ -28,6 +28,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
             navigate('/blogs');      
         }  
         else{
+            
             console.log("error while signing up");
         }
                                     
@@ -55,8 +56,8 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
           ) : (
             <div>Already hve an account</div>
           )}
-          <Link to={type == "signin" ? "/signin" : "/signup"}>
-            {type == "signin" ? "signin" : "signup"}
+          <Link to={type == 'signin' ? '/signin' : '/signup'}>
+            {type == 'signin' ? 'signin' : 'signup'}
           </Link>
         </div>
         <div>
