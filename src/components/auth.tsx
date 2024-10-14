@@ -1,8 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import {BACKEND_URL} from '../config';  // Aliased path  
-
+import { BACKEND_URL } from "../config"; // Aliased path
 import axios from "axios";
 
 const Auth = ({ type }: { type: "signup" | "signin" }) => {
@@ -18,73 +17,103 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
     password: "",
     email: "",
   });
-  const submitData = async()=>{
+
+  const submitData = async () => {
     try {
-        const response =await  axios.post(`${BACKEND_URL}/api/v1/user/${type =='signin'?'signin':'signup'}` , inputs);
-        const token = response.headers.authourization;
-        
-        if(token){
-            document.cookie = `accessToken=${token}; path=/; max-age=36000`;
-            navigate('/blogs');      
-        }  
-        else{
-            
-            console.log("error while signing up");
-        }
-                                    
-        
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/user/${type == "signin" ? "signin" : "signup"}`,
+        inputs
+      );
+      const token = response.headers.authourization;
 
+      if (token) {
+        document.cookie = `accessToken=${token}; path=/; max-age=36000`;
+        navigate("/blogs");
+      } else {
+        console.log("error while signing up");
+      }
     } catch (error) {
-       alert("error while signing in");
+      alert("error while signing in");
     }
+  };
 
-  }
   return (
-    <div className="flex h-screen w-full bg-sky-100">
-      <div className="flex h-screen ">
-        <div className="flex text-sky-200 ">
-          {type == "signin" ? (
-            <div>Welcome back</div>
-          ) : (
-            <div>Create account</div>
-          )}
-          <div>Start sharing your story today</div>
-        </div>
-        <div className="flex flex-col text-blue-300">
-          {type == "signin" ? (
-            <div>Don't have an account</div>
-          ) : (
-            <div>Already hve an account</div>
-          )}
-          <Link to={type == 'signin' ? '/signin' : '/signup'}>
-            {type == 'signin' ? 'signin' : 'signup'}
-          </Link>
-        </div>
-        <div>
-          <LabelledInput
-            label="username"
-            type="text"
-            placeholder="eg:sanjaysahu22"
-            onchange={(e) => {
-              setinputs({ ...inputs, username: e.target.value });
+    <div className="flex flex-col h-full md:h-3/4 w-full md:w-3/4 rounded-md items-center bg-white  md:p-8">
+    
+      <div className="flex-col flex  justify-center items-center text-center">
+        {type == "signin" ? (
+          <div
+            className="font-thin text-3xl md:text-5xl"
+            style={{
+              fontFamily:
+                '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             }}
-          />
-          {type === "signup" ? (
-            <LabelledInput
-              label="email"
-              type="email"
-              placeholder="eg: sanjaysahu@gmail.com"
-              onchange={(e) => {
-                setinputs({ ...inputs, email: e.target.value });
-              }}
-            />
-          ) : null}
-          <LabelledInput type="password" label="passowrd" placeholder="eg: sanJAY2004"  onchange={(e) => {
-                setinputs({ ...inputs, password: e.target.value });
-              }} />
-            <Button onClick={submitData} type="button"  className="bg-sky-400 w-3/5 justify-center">{type==="signin"?'SIGN IN':'SIGN UP'}</Button>
+          >
+            WELCOME BACK
+          </div>
+        ) : (
+          <div
+            className="font-thin text-3xl md:text-5xl"
+            style={{
+              fontFamily:
+                '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            }}
+          >
+            CREATE ACCOUNT
+          </div>
+        )}
+        <div className="text-zinc-400 text-sm md:text-base">
+          Start Sharing Your Story Today ...
         </div>
       </div>
+      <div className="w-full md:w-3/4 flex flex-col justify-around items-center space-y-4 md:space-y-8">
+        <LabelledInput
+          label="USERNAME :"
+          type="text"
+          placeholder="LizDoesBiz"
+          onchange={(e) => {
+            setinputs({ ...inputs, username: e.target.value });
+          }}
+        />
+        {type === "signup" && (
+          <LabelledInput
+            label="EMAIL :"
+            type="email"
+            placeholder="xyz@gmail.com"
+            onchange={(e) => {
+              setinputs({ ...inputs, email: e.target.value });
+            }}
+          />
+        )}
+        <LabelledInput
+          type="password"
+          label="PASSWORD :"
+          placeholder="password"
+          onchange={(e) => {
+            setinputs({ ...inputs, password: e.target.value });
+          }}
+        />
+        <Button
+          onClick={submitData}
+          type="button"
+          className="bg-black w-full md:w-4/5 justify-center hover:bg-zinc-700 hover:w-full hover:h-12 text-white py-2 md:py-3"
+        >
+          {type === "signin" ? "SIGN IN" : "SIGN UP"}
+        </Button>
+        <div className="flex flex-col  w-full justify-center items-center text-zinc-600 mt-4 md:mt-8">
+        {type == "signin" ? (
+          <div>Don't Have An Account?</div>
+        ) : (
+          <div>Already Have An Account?</div>
+        )}
+        <Link
+          className="text-black font-semibold hover:text-xl"
+          to={type == "signin" ? "/signup" : "/signin"}
+        >
+          {type == "signin" ? "SignUp" : "SignIn"}
+        </Link>
+      </div>
+      </div>      
     </div>
   );
 };
@@ -103,10 +132,16 @@ const LabelledInput = ({
   placeholder,
 }: LabelledInputtype) => {
   return (
-    <div>
+    <div className="flex flex-col text-lg md:text-2xl space-y-2 md:space-y-4 w-full">
       <label>{label}</label>
-      <input onChange={onchange} placeholder={placeholder} type={type}></input>
+      <input
+        onChange={onchange}
+        placeholder={placeholder}
+        className="placeholder-gray-500 text-base md:text-lg border-2 border-gray-300 focus:border-blue-500 focus:placeholder-gray-700 rounded-lg p-2 w-full"
+        type={type}
+      />
     </div>
   );
 };
+
 export default Auth;
