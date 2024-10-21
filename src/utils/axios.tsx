@@ -4,7 +4,7 @@ import axios from "axios";
 
 // Create an Axios instance with a base URL
 const AxiosInstance = axios.create({
-    baseURL: `${BACKEND_URL}/api/v1/blog`,  // Set your base URL here
+    baseURL: `${BACKEND_URL}`,  // Set your base URL here
     headers: {
         'Content-Type': 'application/json',
     }
