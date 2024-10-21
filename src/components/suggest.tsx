@@ -8,7 +8,7 @@ export default function PeopleSuggestions() {
       role: "ui/ux , web developer , currently as google ceo",
       image: "/placeholder.svg",
     },
-    // Add more people here
+      
   ]
 
   return (
@@ -17,15 +17,15 @@ export default function PeopleSuggestions() {
       <div className="space-y-4">
         {people.map((person, index) => (
           <div key={index} className="flex items-center space-x-4 bg-secondary p-4 rounded-lg">
-            <Avatar className="w-12 h-12">
-              <AvatarImage src={person.image} alt={person.name} />
-              <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
+            <Avatar className="w-12 h-12 ">
+              <AvatarImage src={person.image}  alt={person.name} />
+              <AvatarFallback className="bg-white">{person.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-grow">
               <h3 className="font-semibold">{person.name}</h3>
-              <p className="text-sm text-muted-foreground">{person.role}</p>
+              <p className="text-sm text-muted-foreground ">{person.role}</p>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" className=" hover:bg-zinc-500 hover:text-white" size="sm">
               Follow
             </Button>
           </div>

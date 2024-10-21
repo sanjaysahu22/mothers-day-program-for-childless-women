@@ -15,7 +15,7 @@ export default function BlogPosts() {
       comments: "300k",
       image:
         "https://images.unsplash.com/photo-1612873346068-1d4b76372235?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z29vZ2xlfGVufDB8fDB8fHww",
-      id: "2",
+      id: "2",  
     },
     {
       title: "Google Doesn't Appreciate Flutter",
@@ -53,15 +53,15 @@ export default function BlogPosts() {
                   <span className="text-sm font-medium">{blog.author}</span>
                 </div>
                 <div className="flex items-center text-xs text-muted-foreground space-x-4">
-                  <span>published on: {blog.date}</span>
-                  <span>Likes: {blog.likes}</span>
-                  <span>Comments: {blog.comments}</span>
+                  <span > <span  className="font-semibold text-black">Published on: </span> {blog.date}</span>
+                  <span><span  className="font-semibold text-black">Likes:</span> {blog.likes}</span>
+                  <span><span className="font-semibold text-black">Comments:</span> {blog.comments}</span>
                 </div>
               </div>
               <img
                 src={blog.image}
                 alt={blog.title}
-                className="rounded-md w-48 h-32  object-cover"
+                className="rounded-md w-1/4 h-32   object-cover"
               />
             </div>
           </CardContent>

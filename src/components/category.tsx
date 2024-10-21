@@ -19,7 +19,7 @@ export default function CategorySuggestions() {
       <div className="flex flex-wrap gap-2">
         {categories.map((category) => (
           <Button key={category} variant="secondary" className="rounded-full">
-            {category}
+            {category} 
           </Button>
         ))}
       </div>
