@@ -1,7 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
+import AxiosInstance from "@/utils/axios";
+import { useEffect, useState } from "react";
 
+ 
+interface blog  {
+  id    :     String     
+  userid :     String
+  created_at : string
+}
 export default function BlogPosts() {
   const blogs = [
     {
@@ -32,7 +40,35 @@ export default function BlogPosts() {
     },
     // Add more posts here as needed
   ];
-
+  const [blog , setblog] = useState<blog>({
+    id    :      ""     ,
+    userid :     ""    ,
+    created_at : ""
+  }) ;
+  let token = document.cookie.split('=')[1];
+  console.log(token ,"line 49");
+  const getblogs = async () => {
+    try {
+      const response = await AxiosInstance.post(
+        'blog/myblogs',
+        {}, 
+        {
+          headers: {
+            'Authorization': `${token}`,   
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    
+      setblog(response.data.blogs);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(()=>{
+    getblogs()
+  } , [])
+  console.log(blog)
   return (
     <div className="space-y-8">
       {blogs.map((blog, index) => (

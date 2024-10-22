@@ -8,9 +8,14 @@ export default function PeopleSuggestions() {
       role: "ui/ux , web developer , currently as google ceo",
       image: "/placeholder.svg",
     },
-      
+    {
+      name: "sanjay sahu",
+      role: "ui/ux , web developer , currently as google ceo",
+      image: "/placeholder.svg",
+    }
   ]
-
+  
+   
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Suggesting peoples:</h2>
