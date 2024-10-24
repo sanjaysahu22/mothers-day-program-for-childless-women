@@ -1,8 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { BACKEND_URL } from "../config";
-import axios from "axios";
+import AxiosInstance from "@/utils/axios";
 
 interface UserInputs {
   email?: string;
@@ -32,8 +31,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
 
   const submitData = async () => {
     try {
-      const endpoint = `${BACKEND_URL}/user/${type}`;
-      const response = await axios.post(endpoint, inputs, { withCredentials: true });
+      const response = await AxiosInstance.post(`/user/${type}`, inputs, { withCredentials: true });
       const token = response.headers["authorization"];
       document.cookie = `accessToken=${token}; path=/; max-age=3600`;
       navigate("/home");

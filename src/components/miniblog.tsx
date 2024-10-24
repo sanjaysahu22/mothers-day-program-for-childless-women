@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/utils/axios";
 import { useEffect, useState } from "react";
 
@@ -45,8 +45,8 @@ export default function BlogPosts() {
     userid :     ""    ,
     created_at : ""
   }) ;
+const navigate = useNavigate();
   let token = document.cookie.split('=')[1];
-  console.log(token ,"line 49");
   const getblogs = async () => {
     try {
       const response = await AxiosInstance.post(
@@ -61,7 +61,10 @@ export default function BlogPosts() {
       );
     
       setblog(response.data.blogs);
-    } catch (error) {
+    } catch (error:any) {
+      if(error.response && error.response.status === 401){
+        navigate('/signin');
+      }
       console.log(error);
     }
   }
