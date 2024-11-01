@@ -1,5 +1,6 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import DOMPurify from "dompurify";
 import {
   AlignCenter,
   AlignJustify,
@@ -12,7 +13,9 @@ import {
   List,
   ListOrdered,
   NotepadText,
+  Images ,
   PenLine,
+  Save,
 } from "lucide-react";
 import {  useCallback, useState } from "react";
 import Underline from "@tiptap/extension-underline";
@@ -22,11 +25,16 @@ import Paragraph from "@tiptap/extension-paragraph";
 import TextAlign from "@tiptap/extension-text-align";
 import ListItem from "@tiptap/extension-list-item";
 import Link from "@tiptap/extension-link";
+import TextStyle from '@tiptap/extension-text-style'
+import {Color} from "@tiptap/extension-color";
+import Image from "@tiptap/extension-image";
+import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 
 const extensions = [
-  StarterKit,
+  StarterKit.configure({
+  }),
   Underline,
   TextAlign.configure({
     types: ["heading", "paragraph"],
@@ -35,21 +43,32 @@ const extensions = [
   ListItem,
   BulletList,
   OrderedList,
-  Document,
-  Paragraph,
+  Document.configure({
+    HTMLAttributes:{
+      class:" " ,
+    }
+  }), 
+  Paragraph.configure({
+    HTMLAttributes:{
+      class:"pl-10  " ,
+    }
+  }),
+  Highlight ,
+  TextStyle ,
   Text,
   Link.configure({
     openOnClick: true,
     autolink: true,
     defaultProtocol: 'https',
   }),
+  Image.configure({
+    HTMLAttributes: {
+      class: "mx-auto h-[30rem] w-[90%]", 
+    }}) ,
+  Color
 ];
-
 function Editors() {
-  const [isFocused, setIsFocused] = useState(false);
-  const [url , seturl] = useState<string>(" ");
-
-  
+  const [isFocused, setIsFocused] = useState(false);  
   const editor  = useEditor({
     extensions: extensions,
     content: "",
@@ -60,8 +79,19 @@ function Editors() {
   if (!editor) {
     return null;
   }
+  const addImage = useCallback(() => {
+    const url = window.prompt('URL')
 
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run()
+    }
+  }, [editor])
 
+  const generateHtml = ()=>{
+    const rawHtml = editor.getHTML();
+    const sanitizedHtml = DOMPurify.sanitize(rawHtml);
+    console.log("Sanitized HTML:", sanitizedHtml);
+  }
  
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes('link').href
@@ -94,7 +124,7 @@ function Editors() {
   
   return (
     <div className="relative">
-      <div className="bg-zinc-200 p-2 flex gap-2">
+      <div className="bg-zinc-200 p-2 flex items-center justify-center gap-2">
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
@@ -126,7 +156,14 @@ function Editors() {
         >
           <PenLine />
         </button>
-        
+        <input
+            type="color"
+            onInput={(event:React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setColor(event.target.value).run()}
+            value={editor.getAttributes('textStyle').color}
+            data-testid="setColor"
+            className="w-8 rounded-full   "
+          />
+           
         <button onClick={setLink} className={`p-1 rounded-lg ${
             editor.isActive("link")
               ? "bg-[#8642CB] text-white"
@@ -154,6 +191,7 @@ function Editors() {
         >
           <NotepadText />
         </button>
+        <button onClick={addImage} className="bg-white hover:bg-[#8642CB] hover:text-white p-1 rounded-lg">    <Images /></button>
 
         {/* Alignment buttons */}
         <button
@@ -226,16 +264,19 @@ function Editors() {
         >
           <ListOrdered />
         </button>
+        <button onClick={generateHtml}  className="bg-white hover:bg-[#8642CB] hover:text-white p-1 rounded-lg" ><Save /></button>
       </div>
 
-      {!isFocused && editor.getHTML() === "<p></p>" && (
-        <div className="absolute top-12 left-2 text-gray-500 pointer-events-none">
-          Start typing something new...
-        </div>
-      )}
+      {!isFocused && editor.getText().trim() === "" && (
+  <div className="absolute top-20 left-10  text-xl text-gray-500 pointer-events-none">
+    Start creating something new...|
+  </div>
+)}
+
 
       <EditorContent
         editor={editor}
+        className="mt-8 "
         onFocus={() => setIsFocused(true)}
         onBlur={() => {
           if (editor.getHTML() === "<p></p>") {
@@ -245,6 +286,8 @@ function Editors() {
       />
     </div>
   );
+ 
 }
+
 
 export default Editors;

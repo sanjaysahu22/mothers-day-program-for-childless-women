@@ -2,7 +2,7 @@ const  color =()=>{
 
         {/* Color picker
             const handleColorChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ) => {
       const color = event.target.value;
       editor?.chain().focus().run();
     },
@@ -16,7 +16,7 @@ const  color =()=>{
         /> */}
             return (
                 <div>
-                    color
+                    
                 </div>
             )
 } 
