@@ -12,10 +12,8 @@ import {
   Link2Off,
   List,
   ListOrdered,
-  NotepadText,
   Images ,
-  PenLine,
-  Save,
+  PenLine 
 } from "lucide-react";
 import {  useCallback, useState } from "react";
 import Underline from "@tiptap/extension-underline";
@@ -31,6 +29,7 @@ import Image from "@tiptap/extension-image";
 import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
+import Saveblog from "./save";
 
 const extensions = [
   StarterKit.configure({
@@ -79,6 +78,7 @@ function Editors() {
   if (!editor) {
     return null;
   }
+  
   const addImage = useCallback(() => {
     const url = window.prompt('URL')
 
@@ -124,11 +124,11 @@ function Editors() {
   
   return (
     <div className="relative">
-      <div className="bg-zinc-200 p-2 flex items-center justify-center gap-2">
+      <div className="   p-2 flex items-center justify-center gap-2  " >
         <button
           onClick={() => editor.chain().focus().toggleBold().run()}
           disabled={!editor.can().chain().focus().toggleBold().run()}
-          className={`p-1 rounded-lg ${
+          className={`p-1 rounded-lg  ${
             editor.isActive("bold") ? "bg-[#8642CB] text-white" : "bg-white"
           }`}
         >
@@ -181,16 +181,7 @@ function Editors() {
           >
            <Link2Off />
           </button>
-        <button
-          onClick={() => editor.chain().focus().setParagraph().run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive("paragraph")
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <NotepadText />
-        </button>
+       
         <button onClick={addImage} className="bg-white hover:bg-[#8642CB] hover:text-white p-1 rounded-lg">    <Images /></button>
 
         {/* Alignment buttons */}
@@ -264,7 +255,7 @@ function Editors() {
         >
           <ListOrdered />
         </button>
-        <button onClick={generateHtml}  className="bg-white hover:bg-[#8642CB] hover:text-white p-1 rounded-lg" ><Save /></button>
+        <Saveblog generateHtml={generateHtml}  />
       </div>
 
       {!isFocused && editor.getText().trim() === "" && (

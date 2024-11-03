@@ -22,8 +22,10 @@ const  Headingbar =()=>{
         const handleHeadingChange = (level: 1 | 2 | 3 | 4 | 5 | 6) => {
     editor.chain().focus().toggleHeading({ level }).run();
     setSelectedHeading(`Heading ${level}`);
+
   };
     /> */}
+    
         return (
             <div>
                 color
