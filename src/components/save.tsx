@@ -1,21 +1,24 @@
-'use client'
-
 import { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import AxiosInstance from '@/utils/axios'
+import { useNavigate } from 'react-router-dom'
 
+// Define Category type and CustomCategory type
 type Category = 'technology' | 'lifestyle' | 'travel' | 'food' | 'other'
+type CustomCategory = Category | string
 
 type FormData = {
   title: string;
   description: string;
-  categories: Category[];
+  categories: CustomCategory[];
   otherCategory: string;
-}
+};
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'technology', label: 'Technology' },
@@ -25,42 +28,69 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-export default function Component({generateHtml}:any) {
+export default function Component({ generateHtml }: any) {
   const [isOpen, setIsOpen] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
-    categories: [],
-    otherCategory: ''
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const submissionData = {
-      ...formData,
-      categories: formData.categories.includes('other')
-        ? [...formData.categories.filter(cat => cat !== 'other'), formData.otherCategory]
-        : formData.categories
+  const { register, handleSubmit, reset, control, watch } = useForm<FormData>({
+    defaultValues: {
+      title: '',
+      description: '',
+      categories: [],
+      otherCategory: ''
     }
-    console.log('Form submitted:', submissionData)
+  })
+  const navigate = useNavigate();
+  const selectedCategories = watch('categories')
 
-    setIsOpen(false)
-    generateHtml()
-    setFormData({ title: '', description: '', categories: [], otherCategory: '' })
-  }
+  const onSubmit = (data: FormData) => {
+    const categories = data.categories.includes('other') && data.otherCategory
+      ? [...data.categories.filter((cat): cat is CustomCategory => cat !== 'other'), data.otherCategory as CustomCategory]
+      : data.categories;
+  
+    const submissionData = {
+      ...data,
+      categories
+    };
+    console.log(submissionData) 
+    Send_data(submissionData)
+    setIsOpen(false);
+    generateHtml();
+    reset();
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+  const Send_data = async (form_Data: FormData) => {
+    const create_blog_json = { title: form_Data.title, description: form_Data.description }
+    const category_json = { category: form_Data.categories }
+    let token = document.cookie.split("=")[1]
+   
+    try {
+      const response = await AxiosInstance.post('blog/create_blog', create_blog_json, {
+        headers: {
+          'Authorization': `${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      console.log(response.data)
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        navigate('/signin')
+      }
+      console.log(error)
+    }
 
-  const handleCategoryChange = (category: Category, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      categories: checked
-        ? [...prev.categories, category]
-        : prev.categories.filter(c => c !== category)
-    }))
+    try {
+      const response = await AxiosInstance.post('blog/category', category_json, {
+        headers: {
+          'Authorization': `${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      console.log(response.data)
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        navigate('/signin')
+      }
+      console.log(error)
+    }
   }
 
   return (
@@ -72,27 +102,21 @@ export default function Component({generateHtml}:any) {
         <DialogHeader>
           <DialogTitle>Create New Blog Post</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
+              {...register("title", { required: "Title is required" })}
               placeholder="Enter blog post title"
-              required
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Short Description</Label>
             <Textarea
               id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
+              {...register("description", { required: "Description is required" })}
               placeholder="Enter a short description"
-              required
             />
           </div>
           <div className="space-y-2">
@@ -100,26 +124,35 @@ export default function Component({generateHtml}:any) {
             <div className="space-y-2">
               {CATEGORIES.map((category) => (
                 <div key={category.value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={category.value}
-                    checked={formData.categories.includes(category.value)}
-                    onCheckedChange={(checked: boolean) => handleCategoryChange(category.value, checked as boolean)}
+                  <Controller
+                    control={control}
+                    name="categories"
+                    render={({ field: { onChange, value } }) => (
+                      <Checkbox
+                        id={category.value}
+                        checked={value?.includes(category.value) || false}
+                        onCheckedChange={(checked: boolean) => {
+                          onChange(
+                            checked
+                              ? [...value, category.value]
+                              : value.filter((c: CustomCategory) => c !== category.value)
+                          )
+                        }}
+                      />
+                    )}
                   />
                   <Label htmlFor={category.value}>{category.label}</Label>
                 </div>
               ))}
             </div>
           </div>
-          {formData.categories.includes('other') && (
+          {selectedCategories?.includes('other') && (
             <div className="space-y-2">
               <Label htmlFor="otherCategory">Specify Other Category</Label>
               <Input
                 id="otherCategory"
-                name="otherCategory"
-                value={formData.otherCategory}
-                onChange={handleInputChange}
+                {...register("otherCategory", { required: "Please specify the other category" })}
                 placeholder="Enter custom category"
-                required
               />
             </div>
           )}

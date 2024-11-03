@@ -4,108 +4,110 @@ import { Link, useNavigate } from "react-router-dom";
 import AxiosInstance from "@/utils/axios";
 import { useEffect, useState } from "react";
 
- 
-interface blog  {
-  id    :     String     
-  userid :     String
-  created_at : string
+interface Blog {
+  id: string;
+  userid: string;
+  created_at: string;
+  BlogData: {
+    title: string;
+    description: string;
+    image: string;
+  };
+  likes: string;
+  comments: string;
 }
+
 export default function BlogPosts() {
-  const blogs = [
-    {
-      title: "Google Doesn't Appreciate Flutter",
-      description:
-        'Another day, another, "Is Google going to kill Flutter post?" It\'s almost comical at this point :',
-      author: "Andrew Zuo",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      date: "6th december , 2024",
-      likes: "100k",
-      comments: "300k",
-      image:
-        "https://images.unsplash.com/photo-1612873346068-1d4b76372235?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z29vZ2xlfGVufDB8fDB8fHww",
-      id: "2",  
-    },
-    {
-      title: "Google Doesn't Appreciate Flutter",
-      description:
-        'Another day, another, "Is Google going to kill Flutter post?" It\'s almost comical at this point:',
-      author: "Andrew Zuo",
-      authorImage: "/placeholder.svg?height=40&width=40",
-      date: "6th december , 2024",
-      likes: "100k",
-      comments: "300k",
-      image:
-        "https://images.unsplash.com/photo-1612873346068-1d4b76372235?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z29vZ2xlfGVufDB8fDB8fHww",
-      id: "1",
-    },
-    // Add more posts here as needed
-  ];
-  const [blog , setblog] = useState<blog>({
-    id    :      ""     ,
-    userid :     ""    ,
-    created_at : ""
-  }) ;
-const navigate = useNavigate();
-  let token = document.cookie.split('=')[1];
-  const getblogs = async () => {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const navigate = useNavigate();
+  let token = document.cookie.split("=")[1];
+
+  const getBlogs = async () => {
     try {
       const response = await AxiosInstance.post(
-        'blog/myblogs',
-        {}, 
+        "blog/myblogs",
+        {},
         {
           headers: {
-            'Authorization': `${token}`,   
-            'Content-Type': 'application/json',
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
-    
-      setblog(response.data.blogs);
-    } catch (error:any) {
-      if(error.response && error.response.status === 401){
-        navigate('/signin');
+      console.log(response.data);
+      setBlogs(response.data.blogs);
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        navigate("/signin");
       }
       console.log(error);
     }
-  }
-  useEffect(()=>{
-    getblogs()
-  } , [])
-  console.log(blog)
-  return (
-    <div className="space-y-8">
-      {blogs.map((blog, index) => (
-        <Card key={index} className="overflow-hidden">                  
-        <Link  to={`/blog/${blog.id}`} >
-          <CardContent className="p-4">
-            <div className="flex items-start space-x-4">
-              <div className="flex-grow ">
-                <h3 className="text-xl font-bold mb-1">{blog.title}</h3>
-                <p className="text-sm text-muted-foreground mb-2">
-                  {blog.description}
-                </p>
-                <div className="flex items-center space-x-2 mb-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage src={blog.authorImage} alt={blog.author} />
-                    <AvatarFallback>{blog.author.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm font-medium">{blog.author}</span>
-                </div>
-                <div className="flex items-center text-xs text-muted-foreground space-x-4">
-                  <span > <span  className="font-semibold text-black">Published on: </span> {blog.date}</span>
-                  <span><span  className="font-semibold text-black">Likes:</span> {blog.likes}</span>
-                  <span><span className="font-semibold text-black">Comments:</span> {blog.comments}</span>
-                </div>
-              </div>
-              <img
-                src={blog.image}
-                alt={blog.title}
-                className="rounded-md w-1/4 h-32   object-cover"
-              />
-            </div>
-          </CardContent>
-          </Link>
+  };
 
+  useEffect(() => {
+    getBlogs();
+  }, []);
+
+  return (
+    <div className="space-y-8 ml-[5%] md:ml-[10%]">
+      {blogs.map((blog, index) => (
+        <Card key={index} className="overflow-hidden">
+          <Link to={`/blog/${blog.id}`}>
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row items-start md:space-x-4 space-y-4 md:space-y-0">
+                <div className="flex-grow">
+                  <div className=" md:!text-xl font-bold mb-1">
+                    {blog.BlogData !== null
+                      ? blog.BlogData.title
+                      : "AUTHOR NAME"}
+                  </div>
+
+                  <p className=" text-muted-foreground mb-2">
+                    {blog.BlogData !== null
+                      ? blog.BlogData.description
+                      : "short description about the blogs"}
+                  </p>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage
+                        src="/placeholder.svg?height=40&width=40"
+                        alt="Author Image"
+                      />
+                      <AvatarFallback>{blog.userid.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <span className="text-xl font-medium">{blog.userid}</span>
+                  </div>
+                  <div className="flex items-center  text-muted-foreground justify-between  space-x-4 w-4/5">
+                    <span>
+                      <span className="font-semibold text-black">
+                        Published on:
+                      </span>{" "}
+                      {new Date(blog.created_at).toLocaleDateString()}
+                    </span>
+                    <span>
+                      <span className="font-semibold text-black">Likes:</span>{" "}
+                      {blog.likes != null ? blog.likes.length : "300k"}
+                    </span>
+                    <span>
+                      <span className="font-semibold text-black">
+                        Comments:
+                      </span>{" "}
+                      {blog.comments}
+                    </span>
+                  </div>
+                </div>
+                <img
+                  src={
+                    blog.BlogData.image !== null
+                      ? blog.BlogData.image
+                      : "https://images.unsplash.com/photo-1631038591095-8660f2bd6734?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHdpdGglMjBubyUyMGltYWdlfGVufDB8fDB8fHww"
+                  }
+                  alt={blog.BlogData.image}
+                  className="rounded-md w-full h-40 object-cover md:w-1/4 md:h-32"
+                />
+              </div>
+            </CardContent>
+          </Link>
         </Card>
       ))}
     </div>

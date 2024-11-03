@@ -17,8 +17,8 @@ export default function CategorySuggestions() {
   const addcategory = async (category: string) => {
     try {
       const response = await AxiosInstance.post(
-        "/blog/category",  // Dynamically insert the category into the URL
-       category ,  // Request body (can be an object if needed)
+        "/act/addcategory", 
+        category , 
         {
           headers: {
             'Authorization': `${token}`,  // Ensure token is formatted correctly with 'Bearer'
