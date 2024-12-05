@@ -24,7 +24,7 @@ const formatNumber = (num: number) => {
 export default function CommentSheet({ comments, id }: CommentSheetProps) {
   const [open, setIsOpen] = useState(false);
   const [comment, setcomment] = useState(" ");
-  const navigate = useNavigate();
+  const navigate = useNavigate();   
   const token = document.cookie.split("=")[1];
   const commentblog = async () => {
     try {

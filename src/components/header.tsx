@@ -3,7 +3,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { BookText, Pencil } from "lucide-react";
 
-export default function CategorySuggestions({}) {
+export default function Header({}) {
   const location = useLocation();
 
   return (
@@ -32,7 +32,7 @@ export default function CategorySuggestions({}) {
             <Link to="/create">
               <Pencil />
             </Link>
-            <Link to="/category/blogs">
+            <Link to="/myblogs">
               <BookText />
             </Link>
             <Link to="/profile">

@@ -1,109 +1,93 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import AxiosInstance from "@/utils/axios";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import FollowComponent from "./followuser";
+import PeopleSuggestionsSkeleton from "./shimmers/peoplesuggestskeleton";
+
+interface UserInterface {
+  username: string;
+  image: string;
+  id: string;
+}
+
+async function fetchSuggestedUsers() {
+  const token = document.cookie.split("=")[1];
+  try {
+    const response = await AxiosInstance.post(
+      "/act/suggestuser",
+      {},
+      {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const usersArray = response.data.result;
+    return Array.isArray(usersArray) ? usersArray : [];
+  } catch (error: any) {
+    console.error("Error fetching suggested users:", error);
+    return [];
+  }
+}
 
 export default function PeopleSuggestions() {
-  const people = [
-    {
-      name: "sanjay sahu",
-      role: "ui/ux , web developer , currently as google ceo",
-      image: "/placeholder.svg",
-      id:"1"
-    },
-    {
-      name: "sanjay sahu",
-      role: "ui/ux , web developer , currently as google ceo",
-      image: "/placeholder.svg",
-      id:'2'
-    },
-  ];
-  const [peoples, setpeoples] = useState(people);
-  const suggestuser = async () => {
-    try {
-      let token = document.cookie.split("=")[1];
-      const response = await AxiosInstance.post(
-      '/act/suggestuser',
-        {},
-        {  params:{
-          id:'1'
-         } ,
-          headers: {
-            'Authorization': `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setpeoples(response.data);
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        const nav = useNavigate();
-        nav("/signin");
-      }
-      console.log(error);
-    }
-  };
+  const [users, setUsers] = useState<UserInterface[]>([]); 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    suggestuser();
-  }, []);
-  console.log(peoples);
-  const id = 1;
-  const followuser = async()=>{
-    try {
-      let token = document.cookie.split("=")[1];
-      const response = await AxiosInstance.post(
-        "/act/follow",
-        {id},
-        {
-          headers: {
-            'Authorization': `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response.data , response.data.status);
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        const nav = useNavigate();
-        nav("/signin");
+    const loadSuggestedUsers = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedUsers = await fetchSuggestedUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error("Failed to load suggested users", error);
+      } finally {
+        setIsLoading(false);
       }
-      console.log(error);
-    }
+    };
+    loadSuggestedUsers();
+  }, []); 
+
+  if (isLoading) {
+    return <PeopleSuggestionsSkeleton />;
   }
+
+  if (users.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground py-8">
+        No suggested users at the moment.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Suggesting peoples:</h2>
+      <h2 className="text-xl lg:text-2xl font-bold">Suggesting peoples:</h2>
       <div className="space-y-4">
-        {peoples !== null ? (
-          people.map((person, index) => (
-            <div
-              key={index}
-              className="flex items-center space-x-4 bg-secondary p-4 rounded-lg"
-            >
-              <Avatar className="w-12 h-12 ">
-                <AvatarImage src={person.image} alt={person.name} />
-                <AvatarFallback className="bg-white">
-                  {person.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-grow">
-                <h3 className="font-semibold">{person.name}</h3>
-                <p className="text-sm text-muted-foreground ">{person.role}</p>
-              </div>
-              <Button
-                variant="outline"
-                className=" hover:bg-zinc-500 hover:text-white"
-                size="sm"
-                onClick={followuser}
-              >
-                Follow
-              </Button>
+        {users.map((user: UserInterface, index: number) => (
+          <div
+            key={index}
+            className="flex items-center space-x-4 bg-secondary p-3 lg:p-4 rounded-lg"
+          >
+            <Avatar className="w-10 h-10 lg:w-12 lg:h-12">
+              <AvatarImage src={user.image} alt={user.username} />
+              <AvatarFallback className="bg-white">
+                {user.username.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-grow">
+              <h3 className="font-semibold text-sm lg:text-base">
+                {user.username}
+              </h3>
+              <p className="text-xs lg:text-sm text-muted-foreground">
+                SDE:2 google
+              </p>
             </div>
-          ))
-        ) : (
-          <div>Loading ...</div>
-        )}
+            <FollowComponent id={user.id} />
+          </div>
+        ))}
       </div>
     </div>
   );

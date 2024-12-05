@@ -1,8 +1,6 @@
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, useNavigate } from "react-router-dom";
-import AxiosInstance from "@/utils/axios";
-import { useEffect, useState } from "react";
 
 interface Blog {
   id: string;
@@ -17,99 +15,46 @@ interface Blog {
   comments: string;
 }
 
-export default function BlogPosts() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const navigate = useNavigate();
-  let token = document.cookie.split("=")[1];
-
-  const getBlogs = async () => {
-    try {
-      const response = await AxiosInstance.post(
-        "blog/myblogs",
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response.data);
-      setBlogs(response.data.blogs);
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        navigate("/signin");
-      }
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getBlogs();
-  }, []);
+export default function BlogPostCard({ blog }: { blog: Blog }) {
+  const title = blog.BlogData?.title || "Untitled Blog";
+  const description = blog.BlogData?.description || "No description available";
+  const image = blog.BlogData?.image || "https://images.unsplash.com/photo-1631038591095-8660f2bd6734?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHdpdGglMjBubyUyMGltYWdlfGVufDB8fDB8fHww";
 
   return (
-    <div className="space-y-8 ml-[5%] md:ml-[10%]">
-      {blogs.map((blog, index) => (
-        <Card key={index} className="overflow-hidden">
-          <Link to={`/blog/${blog.id}`}>
-            <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row items-start md:space-x-4 space-y-4 md:space-y-0">
-                <div className="flex-grow">
-                  <div className=" md:!text-xl font-bold mb-1">
-                    {blog.BlogData !== null
-                      ? blog.BlogData.title
-                      : "AUTHOR NAME"}
-                  </div>
-
-                  <p className=" text-muted-foreground mb-2">
-                    {blog.BlogData !== null
-                      ? blog.BlogData.description
-                      : "short description about the blogs"}
-                  </p>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Avatar className="w-6 h-6">
-                      <AvatarImage
-                        src="/placeholder.svg?height=40&width=40"
-                        alt="Author Image"
-                      />
-                      <AvatarFallback>{blog.userid.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <span className="text-xl font-medium">{blog.userid}</span>
-                  </div>
-                  <div className="flex items-center  text-muted-foreground justify-between  space-x-4 w-4/5">
-                    <span>
-                      <span className="font-semibold text-black">
-                        Published on:
-                      </span>{" "}
-                      {new Date(blog.created_at).toLocaleDateString()}
-                    </span>
-                    <span>
-                      <span className="font-semibold text-black">Likes:</span>{" "}
-                      {blog.likes != null ? blog.likes.length : "300k"}
-                    </span>
-                    <span>
-                      <span className="font-semibold text-black">
-                        Comments:
-                      </span>{" "}
-                      {blog.comments}
-                    </span>
-                  </div>
-                </div>
-                <img
-                  src={
-                    blog.BlogData.image !== null
-                      ? blog.BlogData.image
-                      : "https://images.unsplash.com/photo-1631038591095-8660f2bd6734?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cHJvZmlsZSUyMHdpdGglMjBubyUyMGltYWdlfGVufDB8fDB8fHww"
-                  }
-                  alt={blog.BlogData.image}
-                  className="rounded-md w-full h-40 object-cover md:w-1/4 md:h-32"
-                />
+    <Card key={blog.id} className="overflow-hidden transition-all h-1/2 hover:shadow-lg lg:space-y-8 ">
+      <Link to={`/blog/${blog.id}`}>
+        <CardContent className="py-3 px-6  lg:p-4">
+          <div className="grid md:grid-cols-3 gap-4  lg:flex lg:flex-col lg:space-y-4">
+            <div className="md:col-span-2 flex-grow">
+              <h2 className="text-4xl font-semibold mb-2">{title}</h2>
+              <p className="text-muted-foreground mb-4 line-clamp-2 text-xl">{description}</p>
+              
+              <div className="flex items-center space-x-3 mb-4">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Author" />
+                  <AvatarFallback>{blog.userid.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <span className="font-medium">{blog.userid}</span>
               </div>
-            </CardContent>
-          </Link>
-        </Card>
-      ))}
-    </div>
+              
+              <div className="flex flex-wrap justify-between w-3/4 text-sm text-black">
+                <span>Published: {new Date(blog.created_at).toLocaleDateString()}</span>
+               
+                  <span >Likes: {blog.likes?.length || 0}</span>
+                  <span>Comments: {blog.comments?.length || 0}</span>
+              </div>
+            </div>
+            
+            <div className="md:col-span-1 mb-4 md:mb-0">
+              <img 
+                src={image} 
+                alt={title} 
+                className="w-full h-48 object-cover rounded-md" 
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Link>
+    </Card>
   );
 }
