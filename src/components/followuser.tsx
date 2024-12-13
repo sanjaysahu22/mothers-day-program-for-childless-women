@@ -7,8 +7,8 @@ const unfollowuserapi = async ({ id, navigate }: { id: string; navigate: Functio
   try {
     const token = document.cookie.split("=")[1];
     const response = await AxiosInstance.post(
-      "blog/unfollow",
-      { id },
+      "act/unfollow",
+      { id :id},
       {
         headers: {
           Authorization: `${token}`,
@@ -31,7 +31,7 @@ const followuserapi = async ({ id, navigate }: { id: string; navigate: Function 
     const token = document.cookie.split("=")[1];
     const response = await AxiosInstance.post(
       'act/follow',
-      { id },
+      { id :id },
       {
         headers: {
           Authorization: `${token}`,

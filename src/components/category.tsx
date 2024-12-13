@@ -46,7 +46,7 @@ export default function CategorySuggestions() {
             key={category}
             variant="secondary"
             onClick={() => addCategory(category)}
-            className="rounded-full flex items-center gap-2"
+            className="rounded-full hover:bg-zinc-400 flex items-center gap-2"
             disabled={loadingCategory === category}
           >
             {category}

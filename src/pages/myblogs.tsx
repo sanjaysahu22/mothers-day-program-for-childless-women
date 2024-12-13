@@ -4,7 +4,6 @@ import BlogPostCard from "@/components/miniblog";
 import Header from "@/components/header";
 import Loading from "@/components/loading";
 
-// Blog interface (same as before)
 interface Blog {
   id: string;
   userid: string;
@@ -34,15 +33,16 @@ async function fetchBlogs() {
         },
       }
     );
-    return response.data.blogs;
+    const blogIds = response.data.blogs.map((blog:any) => blog.id);
+    
+    return blogIds;
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return [];
   }
 }
-
 export default function HomePage() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [ids, setids] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +50,8 @@ export default function HomePage() {
       setIsLoading(true);
       try {
         const fetchedBlogs = await fetchBlogs();
-        setBlogs(fetchedBlogs);
+        console.log(fetchedBlogs)
+        setids(fetchedBlogs);
       } catch (error) {
         console.error("Failed to load blogs", error);
       } finally {
@@ -59,15 +60,21 @@ export default function HomePage() {
     };
     loadBlogs();
   }, []);
+
   return (
     <div className="container mx-auto px-4">
       <Header />
-    
         <div className="lg:col-span-3 space-y-6">
           {isLoading ? (        <Loading />):(  <div className="space-y-6 w-3/5 m-auto mt-20">
-            {blogs.map((blog) => (
-              <BlogPostCard key={blog.id} blog={blog} />
-            ))}
+            {ids ? (
+                ids.map((id) => (
+                  <BlogPostCard key={id} id={id} />
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground">
+                  NO BLOGS YET!!
+                </p>
+              )}
           </div>)}
         
         </div>

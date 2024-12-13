@@ -4,7 +4,7 @@ import Signup from "@/pages/signup";
 import Home   from  "@/pages/home"
 import Blog from "@/pages/blog";
 import Create from "@/pages/create";
-import { Profile } from "@/pages/profile";
+import ProfilePage from "@/pages/profile";
 import Myblogs from "@/pages/myblogs";
 
 const Routers = () => {
@@ -16,7 +16,7 @@ const Routers = () => {
               <Route path="/signin" element={<Signin />} />
               <Route path="/home" element={<Home />} />
               <Route path="/create" element={<Create />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/blog/:id" element={<Blog />} />
               <Route path="/myblogs" element={<Myblogs />} /> 
             </Routes>

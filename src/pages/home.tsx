@@ -7,18 +7,6 @@ import BlogPostCard from "@/components/miniblog";
 import Header from "@/components/header";
 
 // Blog interface (same as before)
-interface Blog {
-  id: string;
-  userid: string;
-  created_at: string;
-  BlogData: {
-    title: string;
-    description: string;
-    image: string;
-  };
-  likes: string;
-  comments: string;
-}
 
 async function fetchBlogs() {
   try {
@@ -36,15 +24,15 @@ async function fetchBlogs() {
         },
       }
     );
-    return response.data.blogs;
+    const blogIds = response.data.blogs.map((blog:any) => blog.id);
+    return blogIds;
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return [];
   }
 }
-
 export default function HomePage() {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [ids, setids] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +40,7 @@ export default function HomePage() {
       setIsLoading(true);
       try {
         const fetchedBlogs = await fetchBlogs();
-        setBlogs(fetchedBlogs);
+        setids(fetchedBlogs);
       } catch (error) {
         console.error("Failed to load blogs", error);
       } finally {
@@ -61,21 +49,32 @@ export default function HomePage() {
     };
     loadBlogs();
   }, []);
+
   return (
     <div className="container mx-auto px-4">
       <Header />
-      <div className="grid grid-cols-1 lg:grid-cols-4 p-2 gap-8">
-        <div className="lg:col-span-1 space-y-12 mt-20 ">
-            <CategorySuggestions />        
-            <PeopleSuggestions />
+      <div className="grid grid-cols-1 mt-20 md:grid-cols-4 gap-4 md:gap-8">
+       
+        <div className="md:col-span-1 space-y-8   md:sticky md:top-20 md:max-h-screen md:overflow-y-auto">
+          <CategorySuggestions />
+          <PeopleSuggestions />
         </div>
-        <div className="lg:col-span-3 space-y-6">
-          {isLoading ? (        <BlogPostsSkeleton />):(  <div className="space-y-6 mt-20">
-            {blogs.map((blog) => (
-              <BlogPostCard key={blog.id} blog={blog} />
-            ))}
-          </div>)}
-        
+        <div className="md:col-span-3 space-y-4 md:max-h-screen md:overflow-y-auto">
+          {isLoading ? (
+            <BlogPostsSkeleton />
+          ) : (
+            <div className="space-y-4 md:space-y-6">
+              {ids ? (
+                ids.map((id) => (
+                  <BlogPostCard key={id} id={id} />
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground">
+                  No blogs in your preferred categories
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

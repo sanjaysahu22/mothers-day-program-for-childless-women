@@ -32,7 +32,7 @@ async function fetchSuggestedUsers() {
 }
 
 export default function PeopleSuggestions() {
-  const [users, setUsers] = useState<UserInterface[]>([]); 
+  const [users, setUsers] = useState<UserInterface[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function PeopleSuggestions() {
       }
     };
     loadSuggestedUsers();
-  }, []); 
+  }, []);
 
   if (isLoading) {
     return <PeopleSuggestionsSkeleton />;
@@ -64,28 +64,28 @@ export default function PeopleSuggestions() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl lg:text-2xl font-bold">Suggesting peoples:</h2>
-      <div className="space-y-4">
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold">Suggested People:</h2>
+      <div className="space-y-3 sm:space-y-4">
         {users.map((user: UserInterface, index: number) => (
           <div
             key={index}
-            className="flex items-center space-x-4 bg-secondary p-3 lg:p-4 rounded-lg"
+            className="flex items-center space-x-3 sm:space-x-4 bg-secondary p-3 sm:p-4 hover:bg-zinc-200 hover:shadow-md transition-all duration-300 rounded-lg"
           >
-            <Avatar className="w-10 h-10 lg:w-12 lg:h-12">
+            <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
               <AvatarImage src={user.image} alt={user.username} />
               <AvatarFallback className="bg-white">
                 {user.username.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-grow">
-              <h3 className="font-semibold text-sm lg:text-base">
+              <h3 className="font-semibold text-xs sm:text-sm md:text-base">
                 {user.username}
               </h3>
-              <p className="text-xs lg:text-sm text-muted-foreground">
-                SDE:2 google
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                SDE:2 Google
               </p>
             </div>
-            <FollowComponent id={user.id} />
+            <FollowComponent id={user.username} />
           </div>
         ))}
       </div>

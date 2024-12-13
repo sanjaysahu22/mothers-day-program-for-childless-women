@@ -1,39 +1,43 @@
+import React, { useCallback, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import DOMPurify from "dompurify";
 import {
-  AlignCenter,
-  AlignJustify,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Italic,
-  Link2,
-  Link2Off,
-  List,
-  ListOrdered,
-  Images ,
-  PenLine 
+  AlignCenter, AlignJustify, AlignLeft, AlignRight,
+  Bold, Italic, Link2, Link2Off, List, ListOrdered, 
+  Images, PenLine, ChevronDown, ChevronUp
 } from "lucide-react";
-import {  useCallback, useState } from "react";
+
+// Import all necessary Tiptap extensions
+import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import Text from "@tiptap/extension-text";
-import Document from "@tiptap/extension-document";
-import Paragraph from "@tiptap/extension-paragraph";
 import TextAlign from "@tiptap/extension-text-align";
 import ListItem from "@tiptap/extension-list-item";
 import Link from "@tiptap/extension-link";
-import TextStyle from '@tiptap/extension-text-style'
-import {Color} from "@tiptap/extension-color";
+import TextStyle from '@tiptap/extension-text-style';
+import Color from "@tiptap/extension-color";
 import Image from "@tiptap/extension-image";
 import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
-import Saveblog from "./save";
 
+import Saveblog from "./save";
+import { Button } from "@/components/ui/button";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+// Define extensions with consistent configuration
 const extensions = [
-  StarterKit.configure({
-  }),
+  StarterKit.configure({}),
   Underline,
   TextAlign.configure({
     types: ["heading", "paragraph"],
@@ -42,19 +46,8 @@ const extensions = [
   ListItem,
   BulletList,
   OrderedList,
-  Document.configure({
-    HTMLAttributes:{
-      class:" " ,
-    }
-  }), 
-  Paragraph.configure({
-    HTMLAttributes:{
-      class:"pl-10  " ,
-    }
-  }),
-  Highlight ,
-  TextStyle ,
-  Text,
+  Highlight,
+  TextStyle,
   Link.configure({
     openOnClick: true,
     autolink: true,
@@ -62,223 +55,241 @@ const extensions = [
   }),
   Image.configure({
     HTMLAttributes: {
-      class: "mx-auto h-[30rem] w-[90%]", 
-    }}) ,
+      class: "mx-auto max-h-[30rem] w-full max-w-[90%] object-contain", 
+    }
+  }),
   Color
 ];
-function Editors() {
-  const [isFocused, setIsFocused] = useState(false);  
-  const editor  = useEditor({
-    extensions: extensions,
+
+// Utility function to get button active state
+const getActiveClass = (isActive: boolean) => 
+  `p-1 rounded-lg transition-colors ${
+    isActive ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
+  }`;
+
+export default function Editors() {
+  const [isFocused, setIsFocused] = useState(false);
+  const [isToolbarExpanded, setIsToolbarExpanded] = useState(false);
+
+  // Create editor instance
+  const editor = useEditor({
+    extensions,
     content: "",
     onUpdate: ({ editor }) => {
       setIsFocused(editor.isFocused);
     },
   });
-  if (!editor) {
-    return null;
-  }
-  
+
+  // Prevent render if editor is not ready
+  if (!editor) return null;
+
+  // Image addition handler
   const addImage = useCallback(() => {
-    const url = window.prompt('URL')
-
+    const url = window.prompt('Enter image URL');
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run()
+      editor.chain().focus().setImage({ src: url }).run();
     }
-  }, [editor])
+  }, [editor]);
 
-  const generateHtml = ()=>{
+  // HTML generation and sanitization
+  const generateHtml = useCallback(() => {
     const rawHtml = editor.getHTML();
     const sanitizedHtml = DOMPurify.sanitize(rawHtml);
     console.log("Sanitized HTML:", sanitizedHtml);
-  }
- 
+    return sanitizedHtml;
+  }, [editor]);
+
+  // Link setting handler
   const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes('link').href
-    const url = window.prompt('URL', previousUrl)
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('Enter URL', previousUrl);
 
-    // cancelled
-    if (url === null) {
-      return
-    }
-
-    // empty
+    if (url === null) return;
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink()
-        .run()
-
-      return
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
     }
 
-    // update link
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-      const isLinkActive = editor.isActive('link');
-      if (isLinkActive) {
-        console.log("Text is successfully converted into a link!");
-      } else {
-        console.log("Failed to convert text into a link.");
-      }
-  }, [editor])
+  }, [editor]);
 
-
-  
-  return (
-    <div className="relative">
-      <div className="   p-2 flex items-center justify-center gap-2  " >
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          disabled={!editor.can().chain().focus().toggleBold().run()}
-          className={`p-1 rounded-lg  ${
-            editor.isActive("bold") ? "bg-[#8642CB] text-white" : "bg-white"
-          }`}
-        >
-          <Bold />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          disabled={!editor.can().chain().focus().toggleItalic().run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive("italic") ? "bg-[#8642CB] text-white" : "bg-white"
-          }`}
-        >
-          <Italic />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          disabled={!editor.can().chain().focus().toggleUnderline().run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive("underline")
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <PenLine />
-        </button>
-        <input
-            type="color"
-            onInput={(event:React.ChangeEvent<HTMLInputElement>) => editor.chain().focus().setColor(event.target.value).run()}
-            value={editor.getAttributes('textStyle').color}
-            data-testid="setColor"
-            className="w-8 rounded-full   "
-          />
-           
-        <button onClick={setLink} className={`p-1 rounded-lg ${
-            editor.isActive("link")
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}>
-            <Link2 />
-          </button>
-          <button
-            onClick={() => editor.chain().focus().unsetLink().run()}
-            className={`p-1 rounded-lg ${
-              editor.isActive("link ")
-                ? "bg-[#8642CB] text-white"
-                : "bg-white"
-            }`}
+  // Render toolbar buttons with tooltips
+  const renderToolbarButton = (
+    icon: React.ReactNode, 
+    onClick: () => void, 
+    isActive?: boolean, 
+    tooltip?: string,
+    disabled?: boolean
+  ) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClick}
+            disabled={disabled}
+            className={getActiveClass(!!isActive)}
           >
-           <Link2Off />
-          </button>
-       
-        <button onClick={addImage} className="bg-white hover:bg-[#8642CB] hover:text-white p-1 rounded-lg">    <Images /></button>
+            {icon}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 
-        {/* Alignment buttons */}
-        <button
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          disabled={!editor.can().chain().focus().setTextAlign("center").run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive({ textAlign: "center" })
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <AlignCenter />
-        </button>
+  return (
+    <div className="relative w-full">
+      {/* Responsive Toolbar */}
+      <div className="flex flex-col w-full">
+        {/* Mobile/Responsive Toolbar Toggle */}
+        <div className="flex justify-center md:hidden mb-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsToolbarExpanded(!isToolbarExpanded)}
+            className="flex items-center gap-2"
+          >
+            {isToolbarExpanded ? (
+              <>Close Toolbar <ChevronUp /></>
+            ) : (
+              <>Open Toolbar <ChevronDown /></>
+            )}
+          </Button>
+        </div>
 
-        <button
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          disabled={!editor.can().chain().focus().setTextAlign("right").run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive({ textAlign: "right" })
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <AlignRight />
-        </button>
+        {/* Toolbar Container */}
+        <div className={`
+          w-full overflow-x-auto 
+          ${isToolbarExpanded ? 'block' : 'hidden md:block'}
+        `}>
+          <div className="flex items-center justify-center gap-2 p-2 bg-secondary/10 rounded-lg flex-wrap">
+            {/* Formatting Buttons */}
+            {renderToolbarButton(
+              <Bold />, 
+              () => editor.chain().focus().toggleBold().run(), 
+              editor.isActive("bold"),
+              "Bold",
+              !editor.can().chain().focus().toggleBold().run()
+            )}
 
-        <button
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          disabled={!editor.can().chain().focus().setTextAlign("left").run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive({ textAlign: "left" })
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <AlignLeft />
-        </button>
+            {renderToolbarButton(
+              <Italic />, 
+              () => editor.chain().focus().toggleItalic().run(), 
+              editor.isActive("italic"),
+              "Italic"
+            )}
 
-        <button
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          disabled={!editor.can().chain().focus().setTextAlign("justify").run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive({ textAlign: "justify" })
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <AlignJustify />
-        </button>
+            {renderToolbarButton(
+              <PenLine />, 
+              () => editor.chain().focus().toggleUnderline().run(), 
+              editor.isActive("underline"),
+              "Underline"
+            )}
 
-        {/* List Buttons */}
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive("bulletList")
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <List />
-        </button>
+            {/* Color Picker */}
+            <input
+              type="color"
+              onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+              value={editor.getAttributes('textStyle').color || '#000000'}
+              className="w-10 h-10 p-1 rounded-full border"
+              title="Text Color"
+            />
 
-        <button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-1 rounded-lg ${
-            editor.isActive("orderedList")
-              ? "bg-[#8642CB] text-white"
-              : "bg-white"
-          }`}
-        >
-          <ListOrdered />
-        </button>
-        <Saveblog generateHtml={generateHtml}  />
+            {/* Link Buttons */}
+            {renderToolbarButton(
+              <Link2 />, 
+              setLink, 
+              editor.isActive("link"),
+              "Add Link"
+            )}
+
+            {renderToolbarButton(
+              <Link2Off />, 
+              () => editor.chain().focus().unsetLink().run(), 
+              false,
+              "Remove Link"
+            )}
+
+            {/* Image Button */}
+            {renderToolbarButton(
+              <Images />, 
+              addImage, 
+              false,
+              "Add Image"
+            )}
+
+            {/* Alignment Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <AlignCenter />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().setTextAlign("left").run()}
+                >
+                  <AlignLeft className="mr-2" /> Left
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().setTextAlign("center").run()}
+                >
+                  <AlignCenter className="mr-2" /> Center
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().setTextAlign("right").run()}
+                >
+                  <AlignRight className="mr-2" /> Right
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+                >
+                  <AlignJustify className="mr-2" /> Justify
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* List Buttons */}
+            {renderToolbarButton(
+              <List />, 
+              () => editor.chain().focus().toggleBulletList().run(), 
+              editor.isActive("bulletList"),
+              "Bullet List"
+            )}
+
+            {renderToolbarButton(
+              <ListOrdered />, 
+              () => editor.chain().focus().toggleOrderedList().run(), 
+              editor.isActive("orderedList"),
+              "Ordered List"
+            )}
+
+            {/* Save Button */}
+            <Saveblog generateHtml={() => generateHtml()} />
+          </div>
+        </div>
       </div>
 
-      {!isFocused && editor.getText().trim() === "" && (
-  <div className="absolute top-20 left-10  text-xl text-gray-500 pointer-events-none">
-    Start creating something new...|
-  </div>
-)}
+      {/* Editor Content */}
+      <div className="relative mt-4">
+        {!isFocused && editor.getText().trim() === "" && (
+          <div className="absolute top-4 left-4 text-muted-foreground pointer-events-none">
+            Start creating something new...
+          </div>
+        )}
 
-
-      <EditorContent
-        editor={editor}
-        className="mt-8 "
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => {
-          if (editor.getHTML() === "<p></p>") {
-            setIsFocused(false);
-          }
-        }}
-      />
+        <EditorContent
+          editor={editor}
+          className="p-4 min-h-[300px] border rounded-lg"
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            if (editor.getHTML() === "<p></p>") {
+              setIsFocused(false);
+            }
+          }}
+        />
+      </div>
     </div>
   );
- 
 }
-
-
-export default Editors;
