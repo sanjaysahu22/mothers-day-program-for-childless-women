@@ -34,7 +34,7 @@ async function fetchBlogs() {
       }
     );
     const blogIds = response.data.blogs.map((blog:any) => blog.id);
-    
+    console.log(blogIds)
     return blogIds;
   } catch (error) {
     console.error("Error fetching blogs:", error);

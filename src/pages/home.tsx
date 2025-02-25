@@ -6,7 +6,26 @@ import BlogPostsSkeleton from "@/components/shimmers/blogpostskleton";
 import BlogPostCard from "@/components/miniblog";
 import Header from "@/components/header";
 
-// Blog interface (same as before)
+// Define interfaces
+interface BlogPostType {
+  title: string;
+  description: string;
+  imageUrl: string;
+  content: string;
+  userId: string;
+  id: string;
+  created_at?: string;
+}
+
+interface BlogData {
+  BlogData: BlogPostType;
+  likes: Array<any>;
+  comment: Array<any>;
+}
+
+interface ApiResponse {
+  blogs: BlogData[];
+}
 
 async function fetchBlogs() {
   try {
@@ -24,23 +43,24 @@ async function fetchBlogs() {
         },
       }
     );
-    const blogIds = response.data.blogs.map((blog:any) => blog.id);
-    return blogIds;
+    console.log(response.data);
+    return response.data;
   } catch (error) {
     console.error("Error fetching blogs:", error);
-    return [];
+    return { blogs: [] };
   }
 }
+
 export default function HomePage() {
-  const [ids, setids] = useState<string[]>([]);
+  const [blogData, setBlogData] = useState<ApiResponse>({ blogs: [] });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadBlogs = async () => {
       setIsLoading(true);
       try {
-        const fetchedBlogs = await fetchBlogs();
-        setids(fetchedBlogs);
+        const data = await fetchBlogs();
+        setBlogData(data);
       } catch (error) {
         console.error("Failed to load blogs", error);
       } finally {
@@ -54,8 +74,7 @@ export default function HomePage() {
     <div className="container mx-auto px-4">
       <Header />
       <div className="grid grid-cols-1 mt-20 md:grid-cols-4 gap-4 md:gap-8">
-       
-        <div className="md:col-span-1 space-y-8   md:sticky md:top-20 md:max-h-screen md:overflow-y-auto">
+        <div className="md:col-span-1 space-y-8 md:sticky md:top-20 md:max-h-screen md:overflow-y-auto">
           <CategorySuggestions />
           <PeopleSuggestions />
         </div>
@@ -64,9 +83,14 @@ export default function HomePage() {
             <BlogPostsSkeleton />
           ) : (
             <div className="space-y-4 md:space-y-6">
-              {ids ? (
-                ids.map((id) => (
-                  <BlogPostCard key={id} id={id} />
+              {blogData.blogs && blogData.blogs.length > 0 ? (
+                blogData.blogs.map((blog) => (
+                  <BlogPostCard
+                    key={blog.BlogData.id}
+                    blog={blog.BlogData}
+                    likeCount={blog.likes?.length || 0}
+                    comments={blog.comment || []}
+                  />
                 ))
               ) : (
                 <p className="text-center text-muted-foreground">
