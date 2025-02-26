@@ -17,7 +17,7 @@ interface Comment {
   commentById: string;
   time: string;
 }
-
+  
 interface CommentSheetProps {
   comments: Array<Comment>;
   id: string;

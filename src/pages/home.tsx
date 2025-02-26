@@ -7,24 +7,21 @@ import BlogPostCard from "@/components/miniblog";
 import Header from "@/components/header";
 
 // Define interfaces
-interface BlogPostType {
+
+
+interface BlogCardType {
   title: string;
   description: string;
   imageUrl: string;
-  content: string;
-  userId: string;
+  likes: string[]; // Assuming likes are user IDs
+  comment: string[]; // Assuming comments are user IDs or text
   id: string;
-  created_at?: string;
-}
-
-interface BlogData {
-  BlogData: BlogPostType;
-  likes: Array<any>;
-  comment: Array<any>;
+  created_at: Date;
+  userId: string;
 }
 
 interface ApiResponse {
-  blogs: BlogData[];
+  blogs: BlogCardType[];
 }
 
 async function fetchBlogs() {
@@ -83,20 +80,15 @@ export default function HomePage() {
             <BlogPostsSkeleton />
           ) : (
             <div className="space-y-4 md:space-y-6">
-              {blogData.blogs && blogData.blogs.length > 0 ? (
-                blogData.blogs.map((blog) => (
-                  <BlogPostCard
-                    key={blog.BlogData.id}
-                    blog={blog.BlogData}
-                    likeCount={blog.likes?.length || 0}
-                    comments={blog.comment || []}
-                  />
-                ))
-              ) : (
-                <p className="text-center text-muted-foreground">
-                  No blogs in your preferred categories
-                </p>
-              )}
+              {blogData?.blogs?.length ? (
+  blogData.blogs.map((blog: BlogCardType) => (
+    <BlogPostCard key={blog.id} blog={blog} />
+  ))
+) : (
+  <p className="text-center text-muted-foreground">
+    No blogs in your preferred categories
+  </p>
+)}
             </div>
           )}
         </div>

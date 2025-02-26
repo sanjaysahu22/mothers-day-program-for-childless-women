@@ -1,30 +1,23 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-interface BlogPostType {
-  title: string|null|undefined;
-  description: string|null|undefined;
-  imageUrl: string|null;
-  content: string|null;
-  userId: string|null;
-  id: string|null;
-  created_at?: string|null;
+interface BlogCardType {
+  title: string |undefined;
+  description: string|undefined;
+  imageUrl: string|undefined;
+  likes: string[]; 
+  comment: string[];
+  id: string;
+  created_at: Date;
+  userId: string;
 }
-
-interface Comment {
-  commentById: string;
-  comment: string;
-  time: string;
-}
-
 interface BlogPostCardProps {
-  blog: BlogPostType;
-  likeCount: number;
-  comments: Array<Comment>;
+  blog: BlogCardType;
 }
 
-export default function BlogPostCard({ blog, likeCount, comments }: BlogPostCardProps) {
+
+
+export default function BlogPostCard({blog}: BlogPostCardProps) {
   if (!blog) return null;
 
   return (
@@ -37,10 +30,10 @@ export default function BlogPostCard({ blog, likeCount, comments }: BlogPostCard
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2 order-2 sm:order-1">
               <h2 className="text-2xl sm:text-3xl mb line-clamp-1">
-                {blog.title || blog.title == undefined ? blog.title :"this is the demo title of the blog"}
+                {blog.title  ? blog.title :"this is the demo title of the blog"}
               </h2>
               <p className="text-muted-foreground mb-4 line-clamp-2 text-base sm:text-lg">
-                {blog.description || blog.description == undefined ? blog.description:"this is the demo description of the blog"}
+                { blog.description  ? blog.description:"this is the demo description of the blog"}
               </p>
               <div className="flex items-center space-x-3 mb-4">
                 <Avatar className="w-8 h-8">
@@ -49,7 +42,7 @@ export default function BlogPostCard({ blog, likeCount, comments }: BlogPostCard
                     alt="Author"
                   />
                   <AvatarFallback>
-                    {blog.title.charAt(0).toUpperCase()}
+                    {blog.title?blog.title.charAt(0).toUpperCase():"U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-sm sm:text-base">
@@ -63,8 +56,8 @@ export default function BlogPostCard({ blog, likeCount, comments }: BlogPostCard
                     ? new Date(blog.created_at).toLocaleDateString()
                     : "N/A"}
                 </span>
-                <span>Likes: {likeCount}</span>
-                <span>Comments: {comments.length}</span>
+                <span>Likes: {blog.likes.length}</span>
+                <span>Comments: {blog.comment.length}</span>
               </div>
             </div>
             <div className="sm:col-span-1 order-1 sm:order-2 mb-4 sm:mb-0">

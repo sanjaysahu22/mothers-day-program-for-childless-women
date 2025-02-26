@@ -11,15 +11,12 @@ import { SecuritySettings } from "@/components/changepassword"
 import AxiosInstance from "@/utils/axios"
 import Loading from "@/components/loading"
 
-
-
-interface Followtype{
-  email:string; 
-  username: string,
-  followersCount: number,
-  followingCount: number
+interface Followtype {
+  email: string; 
+  username: string;
+  followersCount: number;
+  followingCount: number;
 }
-
 
 interface Blog {
   id: string;
@@ -33,6 +30,7 @@ interface Blog {
   likes: string;
   comments: string;
 }
+
 async function fetchBlogs() {
   try {
     const token = document.cookie.split("=")[1];
@@ -55,6 +53,7 @@ async function fetchBlogs() {
     return [];
   }
 }
+
 async function fetchuser() {
   try {
     const token = document.cookie.split("=")[1];
@@ -62,7 +61,7 @@ async function fetchuser() {
       throw new Error("No authentication token found");
     }
     const response = await AxiosInstance.post(
-      "act/follow_count",
+      "user/getuser",
       {},
       {
         headers: {
@@ -73,8 +72,8 @@ async function fetchuser() {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching blogs:", error);
-    return [];
+    console.error("Error fetching user details:", error);
+    return null;
   }
 }
 
@@ -82,17 +81,18 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [blogs, setBlogs] = useState<Array<Blog>>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [userdetails , setuserdetails]=  useState<Followtype | null >(null);
+  const [userdetails, setuserdetails] = useState<Followtype | null>(null);
+  
   useEffect(() => {
     const loadBlogs = async () => {
       setIsLoading(true);
       try {
         const fetchedBlogs = await fetchBlogs();
         setBlogs(fetchedBlogs);
-        const fetcheduserdetails:Followtype = await fetchuser();
-        setuserdetails(fetcheduserdetails);
+        const fetcheduserdetails: Followtype | null = await fetchuser();
+        if (fetcheduserdetails) setuserdetails(fetcheduserdetails);
       } catch (error) {
-        console.error("Failed to load blogs", error);
+        console.error("Failed to load data", error);
       } finally {
         setIsLoading(false);
       }
@@ -101,10 +101,10 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col h-screen">
       <Header />
-      <div className="max-w-4xl mx-auto bg-zinc-100 p-4 pt-20">
-        <div className="relative h-48 bg-green-400 rounded-t-lg overflow-visible mb-16 bg-gradient-to-r from-slate-300 to-slate-700">
+      <div className="flex-grow w-3/4 bg-zinc-100 mx-auto p-4 pt-20">
+        <div className="relative h-48 rounded-t-lg overflow-visible mb-16 w-full bg-gradient-to-r from-purple-300 to-purple-800">
           <div className="absolute -bottom-12 left-8 z-10">
             <Avatar className="w-24 h-24 border-4 border-white">
               <AvatarImage
@@ -115,18 +115,22 @@ export default function ProfilePage() {
             </Avatar>
           </div>
         </div>
+        
         <div className="flex justify-between items-center mb-6">
-          {userdetails?(          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{userdetails.followersCount}</div>
-              <div className="text-sm text-muted-foreground">Following</div>
+          {userdetails ? (
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold">{userdetails.followersCount}</div>
+                <div className="text-sm text-muted-foreground">Following</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold">{userdetails.followingCount}</div>
+                <div className="text-sm text-muted-foreground">Followers</div>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{userdetails.followingCount}</div>
-              <div className="text-sm text-muted-foreground">Followers</div>
-            </div>
-            </div>
-):(<div ><Loading /></div>)}
+          ) : (
+            <Loading />
+          )}
           <Button onClick={() => setIsEditing(!isEditing)}>
             {isEditing ? "Save Changes" : "Edit Profile"}
           </Button>
@@ -141,44 +145,32 @@ export default function ProfilePage() {
           <TabsContent value="details">
             <Card>
               <CardContent className="space-y-4 pt-6">
-              {userdetails?(   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input
-                      id="username"
-                      defaultValue={`${userdetails.username}`}
-                      readOnly={!isEditing}
-                    />
+                {userdetails ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input id="username" defaultValue={userdetails.username} readOnly={!isEditing} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Current Role</Label>
+                      <Input defaultValue="Software Engineer" readOnly={!isEditing} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input defaultValue={userdetails.email} readOnly={!isEditing} />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Current Role</Label>
-                    <Input
-                      defaultValue={` software engineer  `}
-                      readOnly={!isEditing}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Email</Label>
-                    <Input
-                      defaultValue={`${userdetails.email}`}
-                      readOnly={!isEditing}
-                    />
-                  </div>
-                 
-                </div>        
-):(<div ><Loading /></div>)}
-               
+                ) : (
+                  <Loading />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Security Tab */}
           <TabsContent value="security">
             <SecuritySettings />
           </TabsContent>
 
-          {/* Blogs Tab */}
           <TabsContent value="blogs">
             <Card>
               <CardContent className="pt-6">
@@ -187,13 +179,12 @@ export default function ProfilePage() {
                     <p>Loading blogs...</p>
                   ) : blogs.length > 0 ? (
                     blogs.map((blog, index) => (
-                      <div
-                        className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer"
-                        key={index}
-                      >
-                        <h3 className="font-semibold">{blog.BlogData.title}</h3>
+                      <div className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer" key={index}>
+                        <h3 className="font-semibold">
+                          {blog.BlogData.title ? blog.BlogData.title : "This is a demo blog title"}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
-                          Published on {blog.created_at}
+                          Published on {new Date(blog.created_at).toISOString().split('T')[0]}
                         </p>
                       </div>
                     ))
