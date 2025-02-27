@@ -6,28 +6,45 @@ import CommentSheet from "@/components/comment";
 import Loading from "@/components/loading";
 import LikeBlog from "@/components/likeblog";
 
-interface BlogCardType {
-  title: string | undefined;
-  description: string | undefined;
-  imageUrl: string | undefined;
-  likes: string[]; 
-  comment: string[];
+interface BlogDetailsType {
   id: string;
+  title:string|undefined;
+  description:string|undefined;
+  imageUrl:string|undefined;
+  BlogData: string | null;
   created_at: Date;
+  likes:  likesType[];
+  comment: [];
   userId: string;
 }
+interface likesType{
+    time: Date;
+    likeById: string;
+    likeOnId: string;
+  }
+ interface CommentType{
+
+    comment:commentDetailType[];
+    commentOnId: string;
+    commentById: string;
+ } 
+ interface commentDetailType{
+    comment: string;
+    time: Date;
+
+ }
 
 export default function Blog() {
-  const [blog, setBlog] = useState<BlogCardType | null>(null);
+  const [blog, setBlog] = useState<BlogDetailsType | null>(null);
   const [likeCount, setLikeCount] = useState<number>(0);
-  const [commentsstate, setComments] = useState<Array<Comment>>([]);
+  const [commentsstate, setComments] = useState<Array<CommentType>>([]);
   const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
   const navigate = useNavigate();
   const token = document.cookie.split("=")[1];
 
- 
+
   const getBlog = async () => {
     try {
       setLoading(true);
@@ -42,11 +59,13 @@ export default function Blog() {
         }
       );
       const fetchedBlog = response.data.result;
-      console.log(fetchedBlog);
-      setBlog(fetchedBlog); 
+      setBlog(fetchedBlog);
+      console.log(fetchedBlog) 
+      const likes =response.data.result.likes;
 
-      setLikeCount(response.data.result.likes);
-      setComments(response.data.result.comments);
+      setLikeCount(likes.length);
+      setComments(response.data.result.comment);
+      console.log( "comments" ,response.data.result.comment.comments);
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         navigate("/signin");
@@ -83,7 +102,7 @@ export default function Blog() {
                   <span className="text-sm font-medium">{blog.userId?blog.userId:"sanjay sahu"}</span>
                 </Link>
                 <LikeBlog blogId={blog.id} initialLikes={likeCount} />
-                <CommentSheet comments={commentsstate} id={blog.id} />
+                <CommentSheet comments={commentsstate} id={id?id:"f00471b8-0c8e-499d-ba67-377fdfd22d16"} />
               </div>
             </header>
             <div className="relative aspect-video">

@@ -12,29 +12,33 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AxiosInstance from "@/utils/axios";
 import { Link, useNavigate } from "react-router-dom";
 
-interface Comment {
-  comment: string;
+interface CommentType {
+  comment: commentDetailType[];
+  commentOnId: string;
   commentById: string;
-  time: string;
+} 
+
+interface commentDetailType {
+  comment: string;
+  time: Date;
 }
-  
+
 interface CommentSheetProps {
-  comments: Array<Comment>;
+  comments: CommentType[];
   id: string;
 }
 
 export default function CommentSheet({ comments, id }: CommentSheetProps) {
   const [open, setIsOpen] = useState(false);
   const [comment, setComment] = useState("");
-  const [commentList, setCommentList] = useState(comments || []);
+  const [commentList, setCommentList] = useState<CommentType[]>(comments || []);
   const navigate = useNavigate();
   const token = document.cookie.split("=")[1];
 
-  // Write comment function
   const writeComment = async () => {
-    if (!comment.trim()) return; // Prevent empty comments
+    if (!comment.trim()) return;
     try {
- await AxiosInstance.post(
+      const response = await AxiosInstance.post(
         "/blog/comment",
         { id, comment },
         {
@@ -44,18 +48,18 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
           },
         }
       );
-      const now = new Date();
-      const formattedTime = now.toLocaleString("en-US", {
-        dateStyle: "short", // Only date
-        timeStyle: "short", // Hour and minute
-      });
-      const newComment: Comment = {
-        comment,
-        commentById: "You", // Replace with actual username from your context/auth
-        time: formattedTime,
+
+      const newComment: CommentType = {
+        commentOnId: id, 
+        commentById: "You", // Replace with actual username
+        comment: [{ 
+          comment, 
+          time: new Date() 
+        }],
       };
-      setCommentList((prev) => [newComment, ...prev]); // Add the new comment to the list
-      setComment(""); // Clear the input
+
+      setCommentList((prev: CommentType[]) => [...prev, newComment]); 
+      setComment(""); 
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         navigate("/signin");
@@ -63,18 +67,18 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
       console.error("Error writing comment:", error);
     }
   };
-  
+
   return (
     <Sheet open={open} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
-          <span>{commentList.length}</span>
+          <span>{commentList.reduce((acc, c) => acc + c.comment.length, 0)}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[400px] sm:w-[540px]">
         <SheetHeader>
-          <SheetTitle>Comments ({commentList.length})</SheetTitle>
+          <SheetTitle>Comments ({commentList.reduce((acc, c) => acc + c.comment.length, 0)})</SheetTitle>
         </SheetHeader>
         <div className="mt-8">
           <div className="space-y-4">
@@ -86,47 +90,35 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
-              <Button
-                className="mt-2 w-full"
-                variant="default"
-                onClick={writeComment}
-              >
+              <Button className="mt-2 w-full" variant="default" onClick={writeComment}>
                 Submit Comment
               </Button>
             </div>
 
             {/* Scrollable Comments List */}
             <div className="max-h-[400px] overflow-y-auto space-y-4 p-2 border-t border-gray-200">
-              {commentList.map((comment, i) =>
-                comment ? (
-                  <div
-                    key={i}
-                    className="flex gap-4 hover:bg-zinc-200 p-2 rounded-lg"
-                  >
+              {commentList.map((commentItem, index) =>
+                commentItem.comment.map((detail, detailIndex) => (
+                  <div key={`${index}-${detailIndex}`} className="flex gap-4 hover:bg-zinc-200 p-2 rounded-lg">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src="/api/placeholder/40/40"
-                        alt={comment.commentById}
-                      />
+                      <AvatarImage src="/api/placeholder/40/40" alt={commentItem.commentById} />
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Link to={`/profile/${comment.commentById}`}>
-                            <span className="font-semibold">
-                              {comment.commentById || "Unknown"}
-                            </span>
+                          <Link to={`/profile/${commentItem.commentById}`}>
+                            <span className="font-semibold">{commentItem.commentById || "Unknown"}</span>
                           </Link>
                           <span className="text-sm text-muted-foreground">
-                            {comment.time}
+                            {new Date(detail.time).toLocaleString()}
                           </span>
                         </div>
                       </div>
-                      <p>{comment.comment}</p>
+                      <p>{detail.comment}</p>
                     </div>
                   </div>
-                ) : null
+                ))
               )}
             </div>
           </div>
