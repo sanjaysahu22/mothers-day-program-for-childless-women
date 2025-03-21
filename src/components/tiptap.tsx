@@ -7,7 +7,6 @@ import {
   Images, PenLine, ChevronDown, ChevronUp, Type
 } from "lucide-react";
 
-// Import all necessary Tiptap extensions
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
@@ -20,7 +19,6 @@ import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import FontFamily from '@tiptap/extension-font-family';
-
 import Saveblog from "./save";
 import { Button } from "@/components/ui/button";
 import { 

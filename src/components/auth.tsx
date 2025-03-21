@@ -100,8 +100,7 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
         username,
         email,
         isAuthenticated: true,
-      });
-      console.log(userDetails  , "line 104  ");
+      }); 
       navigate("/home");
     } catch (error: any) {
       console.error("Error during authentication:", error);

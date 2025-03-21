@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import AxiosInstance from '@/utils/axios'
 import { useNavigate } from 'react-router-dom'
 
-// Define Category type and CustomCategory type
 type Category = 'technology' | 'lifestyle' | 'travel' | 'food' | 'other'
 type CustomCategory = Category | string
 

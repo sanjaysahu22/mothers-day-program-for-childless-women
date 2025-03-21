@@ -11,12 +11,11 @@ export default function LikeBlog({ blogId, initialLikes }: LikeBlogProps) {
   const [like, setLike] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikes);
   const [loading, setLoading] = useState(false);
-
+  console.log(likeCount);
   const token = document.cookie.split("=")[1];
 
   const handleLike = async () => {
-    if (loading) return; // Prevent multiple clicks while loading
-
+    if (loading) return; 
     setLoading(true);
     try {
       await AxiosInstance.post(

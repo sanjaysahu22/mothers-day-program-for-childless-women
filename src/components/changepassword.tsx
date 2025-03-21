@@ -25,8 +25,6 @@ export function SecuritySettings() {
 
   const { clearUserDetails } = useUser();
   const router = useNavigate();
-  console.log(useNavigate ,"router>>" , router)
-
   // Logout function
   const handleLogoutButton = async () => {
     try {
@@ -62,8 +60,6 @@ export function SecuritySettings() {
           },
         }
       );
-
-      console.log("Password changed successfully:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error changing password:", error);

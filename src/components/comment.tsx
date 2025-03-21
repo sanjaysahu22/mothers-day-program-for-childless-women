@@ -12,15 +12,15 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AxiosInstance from "@/utils/axios";
 import { Link, useNavigate } from "react-router-dom";
 
-interface CommentType {
-  comment: commentDetailType[];
-  commentOnId: string;
-  commentById: string;
-} 
-
-interface commentDetailType {
+// Updated interface to match server response
+interface CommentDetail {
   comment: string;
   time: Date;
+}
+
+interface CommentType {
+  comments: CommentDetail[]; // Changed from comment to comments
+  commentById: string;
 }
 
 interface CommentSheetProps {
@@ -50,9 +50,8 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
       );
 
       const newComment: CommentType = {
-        commentOnId: id, 
         commentById: "You", // Replace with actual username
-        comment: [{ 
+        comments: [{ // Changed from comment to comments
           comment, 
           time: new Date() 
         }],
@@ -68,17 +67,20 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
     }
   };
 
+  // Calculate total comments count
+  const totalComments = commentList.reduce((acc, c) => acc + (c.comments?.length || 0), 0);
+
   return (
     <Sheet open={open} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
-          <span>{commentList.reduce((acc, c) => acc + c.comment.length, 0)}</span>
+          <span>{totalComments}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[400px] sm:w-[540px]">
         <SheetHeader>
-          <SheetTitle>Comments ({commentList.reduce((acc, c) => acc + c.comment.length, 0)})</SheetTitle>
+          <SheetTitle>Comments ({totalComments})</SheetTitle>
         </SheetHeader>
         <div className="mt-8">
           <div className="space-y-4">
@@ -98,7 +100,7 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
             {/* Scrollable Comments List */}
             <div className="max-h-[400px] overflow-y-auto space-y-4 p-2 border-t border-gray-200">
               {commentList.map((commentItem, index) =>
-                commentItem.comment.map((detail, detailIndex) => (
+                (commentItem.comments || []).map((detail, detailIndex) => (
                   <div key={`${index}-${detailIndex}`} className="flex gap-4 hover:bg-zinc-200 p-2 rounded-lg">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src="/api/placeholder/40/40" alt={commentItem.commentById} />
