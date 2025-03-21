@@ -14,57 +14,78 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import AxiosInstance from '@/utils/axios'
-
-async function handleChangePassword1(currentPassword: string, newPassword: string) {
-  try {
-    const token = document.cookie.split("=")[1];
-    if (!token) {
-      throw new Error("No authentication token found");
-    }
-
-    // Make the API call
-    const response = await AxiosInstance.post(
-      "update/update-password",
-      { currentPassword, newPassword },
-      {
-        headers: {
-          Authorization: `${token}`, // Add "Bearer" for proper format
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    // Handle success response
-    console.log("Password changed successfully:", response.data);
-    return response.data;
-  } catch (error) {
-    // Log and handle the error
-    console.error("Error changing password:", error);
-
-    // Optionally display a user-friendly error message
-    alert("Failed to change the password. Please try again.");
-    return null; // Return null to indicate failure
-  }
-}
+import { useUser } from "../utils/usercontext";
+import { useNavigate } from 'react-router-dom'
 
 export function SecuritySettings() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+
+  const { clearUserDetails } = useUser();
+  const router = useNavigate();
+  console.log(useNavigate ,"router>>" , router)
+
+  // Logout function
+  const handleLogoutButton = async () => {
+    try {
+      clearUserDetails(); // Clear user context
+      localStorage.removeItem("userDetails"); // Remove from storage
+      localStorage.removeItem("token"); 
+      router("/signin"); // Redirect to sign-in
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  // Change Password function
+  const handleChangePassword1 = async (currentPassword: string, newPassword: string, confirmNewPassword: string) => {
+    try {
+      if (newPassword !== confirmNewPassword) {
+        alert("New password and confirm password do not match.");
+        return null;
+      }
+
+      const token = document.cookie.split("=")[1];
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await AxiosInstance.post(
+        "update/updatepassword",
+        { currentPassword, newPassword },
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Password changed successfully:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("Failed to change the password. Please try again.");
+      return null;
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Call the API function to handle the password change
-    const result = await handleChangePassword1(currentPassword, newPassword)
+    const result = await handleChangePassword1(currentPassword, newPassword, confirmNewPassword);
 
     if (result) {
-      alert("Password changed successfully!")
-      setIsDialogOpen(false) // Close dialog
-      setCurrentPassword('') // Clear inputs
-      setNewPassword('')
+      alert("Password changed successfully!");
+      setIsDialogOpen(false); // Close dialog
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
     }
-  }
+  };
 
   return (
     <>
@@ -79,7 +100,7 @@ export function SecuritySettings() {
             <Lock className="mr-2 h-4 w-4" />
             Change Password
           </Button>
-          <Button className="w-full justify-start text-red-600" variant="outline">
+          <Button className="w-full justify-start text-red-600" onClick={handleLogoutButton} variant="outline">
             <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
@@ -113,6 +134,16 @@ export function SecuritySettings() {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-new-password"
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
             <DialogFooter className="mt-4">
               <Button type="submit">Change Password</Button>
@@ -121,5 +152,5 @@ export function SecuritySettings() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

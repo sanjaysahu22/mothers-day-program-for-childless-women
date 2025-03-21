@@ -65,7 +65,7 @@ export default function Blog() {
 
       setLikeCount(likes.length);
       setComments(response.data.result.comment);
-      console.log( "comments" ,response.data.result.comment.comments);
+      console.log( "line 68" ,response.data.result.comment.comments);
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         navigate("/signin");

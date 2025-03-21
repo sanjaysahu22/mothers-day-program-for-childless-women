@@ -33,7 +33,7 @@ export default function CategorySuggestions() {
     } catch (error) {
       console.error("Error adding category:", error);
     } finally {
-      setLoadingCategory(null); // Reset loading after the response
+      setLoadingCategory(null); 
     }
   };
 

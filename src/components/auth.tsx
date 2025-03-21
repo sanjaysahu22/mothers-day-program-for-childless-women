@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Loader2, AlertCircle } from "lucide-react";
 import AxiosInstance from "@/utils/axios";
+import { useUser } from "@/utils/usercontext";
 
 interface UserInputs {
   email?: string;
@@ -20,6 +21,7 @@ interface LabelledInputProps {
   error?: string;
 }
 const Auth = ({ type }: { type: "signup" | "signin" }) => {
+  const { updateUserDetails  , userDetails } = useUser();
   const navigate = useNavigate();
   const [inputs, setInputs] = useState<UserInputs>({
     username: "",
@@ -73,26 +75,37 @@ const Auth = ({ type }: { type: "signup" | "signin" }) => {
   };
 
   const submitData = async () => {
-    setErrors({});
+    
 
+    setErrors({});
+  
     if (!validateInputs()) {
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       const response = await AxiosInstance.post(`/user/${type}`, inputs, { 
         withCredentials: true 
       });
-
+  
       const token = response.headers["authorization"];
       document.cookie = `accessToken=${token}; path=/; max-age=3600; SameSite=Strict; Secure`;
-      
+      const { id, username, email } = response.data.user;
+      console.log(response.data.user , "line 96");
+     
+      updateUserDetails({
+        id,
+        username,
+        email,
+        isAuthenticated: true,
+      });
+      console.log(userDetails  , "line 104  ");
       navigate("/home");
     } catch (error: any) {
       console.error("Error during authentication:", error);
-      
+  
       if (error.response) {
         switch (error.response.status) {
           case 400:

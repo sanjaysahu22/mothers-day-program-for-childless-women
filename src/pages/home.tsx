@@ -31,7 +31,7 @@ async function fetchBlogs() {
       throw new Error('No authentication token found');
     }
     const response = await AxiosInstance.post(
-      "blog/myblogs",
+      "blog/getblog",
       {},
       {
         headers: {

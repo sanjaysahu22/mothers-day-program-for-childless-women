@@ -4,7 +4,7 @@ import DOMPurify from "dompurify";
 import {
   AlignCenter, AlignJustify, AlignLeft, AlignRight,
   Bold, Italic, Link2, Link2Off, List, ListOrdered, 
-  Images, PenLine, ChevronDown, ChevronUp
+  Images, PenLine, ChevronDown, ChevronUp, Type
 } from "lucide-react";
 
 // Import all necessary Tiptap extensions
@@ -19,6 +19,7 @@ import Image from "@tiptap/extension-image";
 import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
+import FontFamily from '@tiptap/extension-font-family';
 
 import Saveblog from "./save";
 import { Button } from "@/components/ui/button";
@@ -58,14 +59,36 @@ const extensions = [
       class: "mx-auto max-h-[30rem] w-full max-w-[90%] object-contain", 
     }
   }),
-  Color
+  Color,
+  FontFamily.configure({
+    types: ['textStyle'],
+  })
 ];
 
 // Utility function to get button active state
 const getActiveClass = (isActive: boolean) => 
   `p-1 rounded-lg transition-colors ${
-    isActive ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/80"
+    isActive ? "bg-purple-300 text-primary-foreground" : " hover:bg-secondary/80"
   }`;
+
+// Font options
+const fontOptions = [
+  { name: 'Default', value: 'Inter, sans-serif' },
+  { name: 'Serif', value: 'Georgia, serif' },
+  { name: 'Monospace', value: 'Consolas, monospace' },
+  { name: 'Comic Sans', value: 'Comic Sans MS, cursive' },
+  { name: 'Arial', value: 'Arial, sans-serif' },
+  { name: 'Times New Roman', value: 'Times New Roman, serif' },
+];
+
+// Text size options with proper CSS values
+const textSizeOptions = [
+  { name: 'Small', value: '12px' },
+  { name: 'Normal', value: '16px' },
+  { name: 'Medium', value: '20px' },
+  { name: 'Large', value: '24px' },
+  { name: 'Extra Large', value: '32px' },
+];
 
 export default function Editors() {
   const [isFocused, setIsFocused] = useState(false);
@@ -164,6 +187,79 @@ export default function Editors() {
           ${isToolbarExpanded ? 'block' : 'hidden md:block'}
         `}>
           <div className="flex items-center justify-center gap-2 p-2 bg-secondary/10 rounded-lg flex-wrap">
+            {/* Heading Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={getActiveClass(false)}>
+                  <Type />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={() => editor.chain().focus().setParagraph().run()}
+                  className={editor.isActive('paragraph') ? 'bg-primary/20' : ''}
+                >
+                  Paragraph
+                </DropdownMenuItem>
+                {[1, 2, 3, 4, 5, 6].map(level => (
+                  <DropdownMenuItem 
+                    key={level}
+                    onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
+                    className={editor.isActive('heading', { level }) ? 'bg-primary/20' : ''}
+                  >
+                    Heading {level}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Font Family Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-medium flex gap-2 h-10 px-3">
+                  Font <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {fontOptions.map((font) => (
+                  <DropdownMenuItem 
+                    key={font.value}
+                    onClick={() => {
+                      // Set font family with the extension
+                      editor.chain().focus().setFontFamily(font.value).run();
+                    }}
+                    style={{ fontFamily: font.value }}
+                    className={editor.isActive('textStyle', { fontFamily: font.value }) ? 'bg-primary/20' : ''}
+                  >
+                    {font.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Font Size Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-sm font-medium flex gap-2 h-10 px-3">
+                  Size <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {textSizeOptions.map((size) => (
+                  <DropdownMenuItem 
+                    key={size.value}
+                    onClick={() => {
+                      // Apply fontSize using inline CSS through the HTML attribute
+                      editor.chain().focus().setMark('textStyle', { fontSize: size.value }).run();
+                    }}
+                    style={{ fontSize: size.value }}
+                  >
+                    {size.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* Formatting Buttons */}
             {renderToolbarButton(
               <Bold />, 
