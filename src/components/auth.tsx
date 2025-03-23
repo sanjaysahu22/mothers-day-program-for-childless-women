@@ -21,7 +21,7 @@ interface LabelledInputProps {
   error?: string;
 }
 const Auth = ({ type }: { type: "signup" | "signin" }) => {
-  const { updateUserDetails  , userDetails } = useUser();
+  const { updateUserDetails   } = useUser();
   const navigate = useNavigate();
   const [inputs, setInputs] = useState<UserInputs>({
     username: "",

@@ -31,7 +31,7 @@ async function fetchBlogs() {
       throw new Error('No authentication token found');
     }
     const response = await AxiosInstance.post(
-      "blog/getblog",
+      "act/getuser_liked_cat_blogs",
       {},
       {
         headers: {
@@ -40,8 +40,8 @@ async function fetchBlogs() {
         },
       }
     );
-    console.log(response.data);
-    return response.data;
+    console.log(response.data.deleteuser);
+    return response.data.deleteuser;
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return { blogs: [] };
@@ -57,6 +57,7 @@ export default function HomePage() {
       setIsLoading(true);
       try {
         const data = await fetchBlogs();
+
         setBlogData(data);
       } catch (error) {
         console.error("Failed to load blogs", error);

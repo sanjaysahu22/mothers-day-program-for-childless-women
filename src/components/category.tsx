@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner"; // ✅ Import Sonner
 import AxiosInstance from "@/utils/axios";
 
 export default function CategorySuggestions() {
   const token = document.cookie.split("=")[1];
+
   const categories = [
     "Google",
     "Entertainment",
@@ -12,12 +14,14 @@ export default function CategorySuggestions() {
     "Technology",
     "Politics",
     "Relationships",
-    "finance",
-    "stocks",
+    "Finance",
+    "Stocks",
   ];
+
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+
   const addCategory = async (category: string) => {
-    setLoadingCategory(category); 
+    setLoadingCategory(category);
     try {
       const response = await AxiosInstance.post(
         "/act/addcategory",
@@ -29,11 +33,18 @@ export default function CategorySuggestions() {
           },
         }
       );
+
+      // ✅ Show success toast using Sonner
+      toast.success(`${category} added successfully!`);
+
       return response.data;
     } catch (error) {
       console.error("Error adding category:", error);
+
+      // ❌ Show error toast
+      toast.error(`Failed to add ${category}. Try again.`);
     } finally {
-      setLoadingCategory(null); 
+      setLoadingCategory(null);
     }
   };
 

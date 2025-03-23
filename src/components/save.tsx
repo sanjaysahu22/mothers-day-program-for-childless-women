@@ -27,22 +27,22 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
-export default function Component({ generateHtml }: any) {
-  const [isOpen, setIsOpen] = useState(false)
-  const { register, handleSubmit, reset, control, watch } = useForm<FormData>({
-    defaultValues: {
-      title: '',
-      description: '',
-      categories: [],
-      otherCategory: ''
-    }
-  })
-  const navigate = useNavigate();
-  const selectedCategories = watch('categories')
-
-  const onSubmit = (data: FormData) => {
-    const categories = data.categories.includes('other') && data.otherCategory
-      ? [...data.categories.filter((cat): cat is CustomCategory => cat !== 'other'), data.otherCategory as CustomCategory]
+  export default function Saveblog({ generateHtml }: any) {
+    const [isOpen, setIsOpen] = useState(false)
+    const { register, handleSubmit, reset, control, watch } = useForm<FormData>({
+      defaultValues: {
+        title: '',
+        description: '',
+        categories: [],
+        otherCategory: ''
+      }
+    })
+    const navigate = useNavigate();
+    const selectedCategories = watch('categories')
+    console.log(generateHtml)
+    const onSubmit = (data: FormData) => {
+      const categories = data.categories.includes('other') && data.otherCategory
+        ? [...data.categories.filter((cat): cat is CustomCategory => cat !== 'other'), data.otherCategory as CustomCategory]
       : data.categories;
   
     const submissionData = {
@@ -57,12 +57,13 @@ export default function Component({ generateHtml }: any) {
   };
 
   const Send_data = async (form_Data: FormData) => {
-    const create_blog_json = { title: form_Data.title, description: form_Data.description }
+    const create_json = { title: form_Data.title, description: form_Data.description , content:generateHtml() }
     const category_json = { category: form_Data.categories }
     let token = document.cookie.split("=")[1]
-   
+    console.log(create_json  ,"line 63")
+    console.log
     try {
-      const response = await AxiosInstance.post('blog/create_blog', create_blog_json, {
+      const response = await AxiosInstance.post('blog/create_blog', {create_json}, {
         headers: {
           'Authorization': `${token}`,
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export default function Component({ generateHtml }: any) {
     }
 
     try {
-      const response = await AxiosInstance.post('blog/category', category_json, {
+      const response = await AxiosInstance.post('blog/category', {category_json}, {
         headers: {
           'Authorization': `${token}`,
           "Content-Type": "application/json",

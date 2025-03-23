@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { UserProvider } from './utils/usercontext';
 import './index.css';
-
+import { Toaster } from "sonner";
 // Create root element
 const rootElement = document.getElementById('root');
 
@@ -18,6 +18,7 @@ root.render(
   <React.StrictMode>
     <UserProvider>
       <App />
+      <Toaster richColors position="top-right" /> 
     </UserProvider>
   </React.StrictMode>
 );

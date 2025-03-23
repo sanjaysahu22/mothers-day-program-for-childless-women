@@ -15,10 +15,13 @@ interface User {
   email: string;
   blogs: {
     id: string;
-    created_at: Date;
-    BlogData: {
-      title: string;
-    } | null;
+    userId:string;
+    blogData:{
+      title:string;
+      description:string;
+      created_at: string;
+    }
+
   }[];
   _count: {
     followers: number;
@@ -42,6 +45,7 @@ async function fetchUser(id: string) {
         },
       }
     );
+    console.log(response.data.user);
     return response.data.user;
   } catch (error) {
     console.error("Error fetching user details:", error);
@@ -177,10 +181,18 @@ export default function ProfilePage() {
                     userdetails.blogs.map((blog) => (
                       <div className="border rounded-lg p-4 hover:bg-muted/50 cursor-pointer" key={blog.id}>
                         <h3 className="font-semibold">
-                          {blog.BlogData?.title || "This is a demo blog title"}
+                         Title :{blog.blogData.title || "This is a demo blog title"}
+                        </h3>
+                        <h3 className="font-semibold">
+                        Subject : {blog.blogData.description || "This is a demo blog title"}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          Published on {new Date(blog.created_at).toISOString().split("T")[0]}
+                        Published on {new Date(blog.blogData.created_at).toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+})}
+
                         </p>
                       </div>
                     ))

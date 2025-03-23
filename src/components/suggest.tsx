@@ -3,7 +3,7 @@ import AxiosInstance from "@/utils/axios";
 import { useState, useEffect } from "react";
 import FollowComponent from "./followuser";
 import PeopleSuggestionsSkeleton from "./shimmers/peoplesuggestskeleton";
-
+import {toast} from 'sonner';
 interface UserInterface {
   username: string;
   image: string;

@@ -2,6 +2,7 @@ import AxiosInstance from "@/utils/axios";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const unfollowuserapi = async ({ id, navigate }: { id: string; navigate: Function }) => {
   try {
@@ -59,7 +60,7 @@ const FollowComponent = ({ id }: { id: string }) => {
       const response = await followuserapi({ id, navigate });
       if (response && response.status === 200) {
         setFollow(true);
-        console.log("Followed successfully");
+        toast.success(` followed  successfully!`);
       } else {
         console.error("Failed to follow:", response);
       }
@@ -67,7 +68,7 @@ const FollowComponent = ({ id }: { id: string }) => {
       const response = await unfollowuserapi({ id, navigate });
       if (response && response.status === 200) {
         setFollow(false);
-        console.log("Unfollowed successfully");
+        toast.success("Unfollowed successfully");
       } else {
         console.error("Failed to unfollow:", response);
       }

@@ -7,7 +7,6 @@ import Loading from "@/components/loading";
 import LikeBlog from "@/components/likeblog";
 import { useUser } from "@/utils/usercontext";
 
-// Updated interface to match server response
 interface CommentDetail {
   comment: string;
   time: Date;
@@ -20,25 +19,21 @@ interface CommentType {
 
 interface BlogDetailsType {
   id: string;
-  title: string | undefined;
-  description: string | undefined;
   imageUrl: string | undefined;
-  BlogData: string | null;
-  created_at: Date;
-  likes: likesType[];
-  comment: CommentType[]; // Updated to match server response
-  userId: string;
+  blogData:{
+    title: string | undefined;
+    description: string | undefined;
+    created_at: string;
+    content:string;
+  } ;
+  comment: CommentType[]; 
+  userid: string;
   _count?: {
-    likes: number;
+    likes: number;  
     comment: number;
   };
 }
 
-interface likesType {
-  time: Date;
-  likeById: string;
-  likeOnId: string;
-}
 
 export default function Blog() {
   const [blog, setBlog] = useState<BlogDetailsType | null>(null);
@@ -100,29 +95,22 @@ export default function Blog() {
           <article className="w-full max-w-4xl mx-4 bg-white rounded-lg shadow-md overflow-hidden">
             <header className="p-6 space-y-4">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                {blog.title ? blog.title : " A PROJECT TITLE "}
+                {blog.blogData.title ? blog.blogData.title : " A PROJECT TITLE "}
               </h1>
-              <p className="text-lg text-gray-600">{blog.description ? blog.description : " SHORT DESCRIPTION ABOUT PROJECT IN TWO THREE LINES"}</p>
+              <p className="text-lg text-gray-600">{blog.blogData.description ? blog.blogData.description : " SHORT DESCRIPTION ABOUT PROJECT IN TWO THREE LINES"}</p>
               <div className="bg-zinc-100 flex rounded-lg justify-around p-3">
-                <Link to={`/profile/${blog.userId}`} className="flex items-center hover:bg-white px-3 py-2 rounded-lg transition-colors">
+                <Link to={`/profile/${blog.userid}`} className="flex items-center hover:bg-white px-3 py-2 rounded-lg transition-colors">
                   <span>Author:</span>
                   <div className="h-6 ml-2 mr-1 w-6 rounded-full bg-red-300"></div>
-                  <span className="text-sm font-medium">{blog.userId ? blog.userId : "sanjay sahu"}</span>
+                  <span className="text-sm font-medium">{blog.userid ? blog.userid : "sanjay sahu"}</span>
                 </Link>
                 
                 <LikeBlog blogId={blog.id} initialLikes={likeCount} />
                 <CommentSheet comments={commentsState} id={id || "f00471b8-0c8e-499d-ba67-377fdfd22d16"} />
               </div>
             </header>
-            <div className="relative aspect-video">
-              <img
-                src={blog.imageUrl || ""}
-                alt="Blog post cover image"
-                className="object-cover w-full h-full"
-              />
-            </div>
             <div className="p-6 prose prose-gray max-w-none">
-              <p className="text-gray-800 whitespace-pre-line">{blog.description || ""}</p>
+              <p className="text-gray-800 whitespace-pre-line">{blog.blogData.content || ""}</p>
             </div>
           </article>
         </div>
