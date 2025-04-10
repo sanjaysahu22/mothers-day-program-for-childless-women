@@ -162,7 +162,7 @@ const BlogHomepage: React.FC = () => {
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className={`text-3xl font-bold text-gray-800 mb-12 text-center transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Why Choose vaccum
+            Why Choose vacuum
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -183,7 +183,7 @@ const BlogHomepage: React.FC = () => {
       
     
           <div className={`border-t border-gray-800  p-8 text-sm text-center transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            © 2025 vaccum. All rights reserved.
+            © 2025 vacuum. All rights reserved.
           </div>
         </div>
     
