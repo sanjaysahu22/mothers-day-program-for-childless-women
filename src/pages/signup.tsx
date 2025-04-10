@@ -1,5 +1,4 @@
 import Auth from "@/components/auth";
-import Quote from "@/components/quote";
 
 const Signup = () => {
   return (

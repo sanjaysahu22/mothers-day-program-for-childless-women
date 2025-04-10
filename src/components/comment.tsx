@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AxiosInstance from "@/utils/axios";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 // Updated interface to match server response
 interface CommentDetail {
@@ -48,7 +49,13 @@ export default function CommentSheet({ comments, id }: CommentSheetProps) {
           },
         }
       );
-
+      if (response.status !== 200) {
+        throw new Error("Failed to post comment");
+      }
+      else{
+        console.log("Comment posted successfully:", response.data);
+        toast.success("Comment posted successfully");
+      }
       const newComment: CommentType = {
         commentById: "You", // Replace with actual username
         comments: [{ // Changed from comment to comments

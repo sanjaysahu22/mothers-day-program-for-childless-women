@@ -10,7 +10,7 @@ import { SecuritySettings } from "@/components/changepassword";
 import AxiosInstance from "@/utils/axios";
 import { useUser } from "@/utils/usercontext";
 import { Link, useParams } from "react-router-dom";
-import { profile } from "node:console";
+
 
 interface User {
   id: string;

@@ -5,7 +5,7 @@ import Header from "@/components/header";
 import CommentSheet from "@/components/comment";
 import Loading from "@/components/loading";
 import LikeBlog from "@/components/likeblog";
-import { useUser } from "@/utils/usercontext";
+
 
 interface CommentDetail {
   comment: string;
@@ -40,7 +40,6 @@ export default function Blog() {
   const [likeCount, setLikeCount] = useState<number>(0);
   const [commentsState, setComments] = useState<Array<CommentType>>([]);
   const [loading, setLoading] = useState(false);
- const { userDetails } = useUser();
 
   const { id } = useParams();
   const navigate = useNavigate();

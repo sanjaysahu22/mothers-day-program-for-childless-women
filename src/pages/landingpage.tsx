@@ -19,14 +19,12 @@ interface Feature {
   description: string;
 }
 
-interface FooterColumn {
-  title: string;
-  links: string[];
-}
+
 
 const BlogHomepage: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
+  console.log(featuredPosts)
   const navigate = useNavigate()
   // Simulate data loading
   useEffect(() => {
