@@ -1,10 +1,8 @@
-// src/axiosInstance.js
-import  {BACKEND_URL}  from "/home/sanjay-sahu/programming/vaccum/client/config.ts";
 import axios from "axios";
 
 // Create an Axios instance with a base URL
 const AxiosInstance = axios.create({
-    baseURL: `${BACKEND_URL}`,  // Set your base URL here
+    baseURL: `https://server.sanjay23bcy51.workers.dev/api/v1`,  // Set your base URL here
     headers: {
         'Content-Type': 'application/json',
     }
