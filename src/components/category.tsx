@@ -33,15 +33,10 @@ export default function CategorySuggestions() {
           },
         }
       );
-
-      // ✅ Show success toast using Sonner
       toast.success(`${category} added successfully!`);
-
       return response.data;
     } catch (error) {
       console.error("Error adding category:", error);
-
-      // ❌ Show error toast
       toast.error(`Failed to add ${category}. Try again.`);
     } finally {
       setLoadingCategory(null);

@@ -8,15 +8,18 @@ import Header from "@/components/header";
 
 // Define interfaces
 
-
-interface BlogCardType {
+interface BlogDataType {
   title: string;
   description: string;
-  imageUrl: string;
-  likes: string[]; // Assuming likes are user IDs
-  comment: string[]; // Assuming comments are user IDs or text
-  id: string;
+  content: string;
   created_at: Date;
+}
+
+interface BlogCardType {
+  blogData: BlogDataType;
+  likes: number;
+  comments: number; // Fix the property name from "comment" to "comments" to match the response
+  id: string;
   userId: string;
 }
 
@@ -40,8 +43,19 @@ async function fetchBlogs() {
         },
       }
     );
-    console.log(response.data.deleteuser);
-    return response.data.deleteuser;
+    console.log(response.data.updatedBlogs)
+    return { blogs: response.data.updatedBlogs.map((blog: any) => ({
+      id: blog.id,
+      userId: blog.userId,
+      likes: blog.likes,
+      comments: blog.comments, // Ensure this matches API response
+      blogData: {
+        title: blog.blogData.title,
+        description: blog.blogData.description,
+        content: blog.blogData.content,
+        created_at: blog.blogData.created_at,
+      }
+    })) };
   } catch (error) {
     console.error("Error fetching blogs:", error);
     return { blogs: [] };
@@ -81,15 +95,15 @@ export default function HomePage() {
             <BlogPostsSkeleton />
           ) : (
             <div className="space-y-4 md:space-y-6">
-              {blogData?.blogs?.length ? (
-  blogData.blogs.map((blog: BlogCardType) => (
-    <BlogPostCard key={blog.id} blog={blog} />
-  ))
-) : (
-  <p className="text-center text-muted-foreground">
-    No blogs in your preferred categories
-  </p>
-)}
+          {blogData.blogs.length ? (
+                      blogData.blogs.map((blog: BlogCardType) => (
+                        <BlogPostCard key={blog.id} blog={blog} />
+                      ))
+                    ) : (
+                      <p className="text-center text-muted-foreground">
+                        No blogs currently in profile
+                      </p>
+                    )}
             </div>
           )}
         </div>

@@ -8,10 +8,7 @@ const Signup = () => {
         <Auth type="signup" />
       </div>
       
-      <div className="hidden md:flex w-1/2 h-screen justify-center items-center">
-        <Quote />
-      </div>
-    </div>
+       </div>
   );
 };
 

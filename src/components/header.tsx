@@ -4,12 +4,14 @@ import { Input } from "./ui/input";
 import { BookText, Pencil, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useUser } from "@/utils/usercontext";
 
 export default function Header() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-
+  const userdetails  = useUser();
+  console.log(userdetails)
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -22,15 +24,13 @@ export default function Header() {
     <div className="container mx-auto px-4 py-3 flex justify-between items-center">
       <div className="font-light text-xl md:text-2xl">VACUUM</div>
       <div className="text-sm md:text-base">
-        Creating Draft In{" "}
-        <span className="font-light text-black text-xs md:text-xl bg-zinc-200 py-1 px-2 rounded-lg">
-          Sanjay Sahu
-        </span>
+        Creating Draft {" "}
+     
       </div>
-      <Link to="/profile">
+      <Link to={`/profile/${userdetails.userDetails.username}`}>
         <Avatar className="w-8 h-8 md:w-10 md:h-10">
           <AvatarImage src="/placeholder.svg" alt="User" />
-          <AvatarFallback>U</AvatarFallback>
+          <AvatarFallback>{userdetails.userDetails.username.charAt(0)}</AvatarFallback>
         </Avatar>
       </Link>
     </div>
@@ -77,10 +77,10 @@ export default function Header() {
             <Link to="/myblogs" className="hover:bg-secondary p-2 rounded-md">
               <BookText className="h-5 w-5" />
             </Link>
-            <Link to="/profile">
+            <Link to={`/profile/${userdetails.userDetails.username}`}>
               <Avatar className="w-8 h-8 lg:w-10 lg:h-10">
                 <AvatarImage src="/placeholder.svg" alt="User" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarFallback>{userdetails.userDetails.username.charAt(0)}</AvatarFallback>
               </Avatar>
             </Link>
           </div>

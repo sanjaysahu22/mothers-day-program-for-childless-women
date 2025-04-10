@@ -65,10 +65,7 @@ export default function Blog() {
       
       const likes = fetchedBlog._count.likes;
       setLikeCount(likes);
-      console.log(likes)
-      // Correctly set comments based on server response
       setComments(fetchedBlog.comment || []);
-      console.log("Comments:", fetchedBlog.comment);
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         navigate("/signin");
@@ -110,7 +107,8 @@ export default function Blog() {
               </div>
             </header>
             <div className="p-6 prose prose-gray max-w-none">
-              <p className="text-gray-800 whitespace-pre-line">{blog.blogData.content || ""}</p>
+            <div dangerouslySetInnerHTML={{ __html: blog.blogData.content }} />
+        
             </div>
           </article>
         </div>

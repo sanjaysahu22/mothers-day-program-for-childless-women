@@ -55,44 +55,70 @@ const CATEGORIES: { value: Category; label: string }[] = [
     generateHtml();
     reset();
   };
-
   const Send_data = async (form_Data: FormData) => {
-    const create_json = { title: form_Data.title, description: form_Data.description , content:generateHtml() }
-    const category_json = { category: form_Data.categories }
-    let token = document.cookie.split("=")[1]
-    console.log(create_json  ,"line 63")
-    console.log
     try {
-      const response = await AxiosInstance.post('blog/create_blog', {create_json}, {
+      // Prepare blog creation data
+      const create_json = { 
+        title: form_Data.title, 
+        description: form_Data.description, 
+        content: generateHtml() ,
+        category: form_Data.categories 
+      };
+  
+      // Create blog first
+      const blogResponse = await AxiosInstance.post('blog/create_blog', {
+        title: create_json.title,
+        description: create_json.description,
+        content: create_json.content  ,
+        category:create_json.category
+      }, {
         headers: {
-          'Authorization': `${token}`,
+          'Authorization': `${document.cookie.split("=")[1]}`,
           "Content-Type": "application/json",
         },
-      })
-      console.log(response.data)
+      });
+  
+      const blogId = blogResponse.data.blog.id;
+ 
+  
+      console.log('Blog Creation Response:', blogResponse.data);
+  
+      return {
+        blogId,
+        blogResponse: blogResponse.data,
+      };
+  
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        navigate('/signin')
+      // Centralized error handling
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            // Unauthorized - redirect to signin
+            navigate('/signin');
+            break;
+          case 400:
+            // Bad request - log specific errors
+            console.error('Bad Request:', error.response.data);
+            break;
+          case 500:
+            // Server error
+            console.error('Server Error:', error.response.data);
+            break;
+          default:
+            console.error('Unexpected Error:', error.response.data);
+        }
+      } else if (error.request) {
+        // Request made but no response received
+        console.error('No response received:', error.request);
+      } else {
+        // Error in setting up the request
+        console.error('Error setting up request:', error.message);
       }
-      console.log(error)
+  
+      // Optionally rethrow or handle error as needed
+      throw error;
     }
-
-    try {
-      const response = await AxiosInstance.post('blog/category', {category_json}, {
-        headers: {
-          'Authorization': `${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      console.log(response.data)
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        navigate('/signin')
-      }
-      console.log(error)
-    }
-  }
-
+  };
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>

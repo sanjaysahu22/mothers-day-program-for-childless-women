@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import DOMPurify from "dompurify";
 import {
@@ -6,7 +6,6 @@ import {
   Bold, Italic, Link2, Link2Off, List, ListOrdered, 
   Images, PenLine, ChevronDown, ChevronUp, Type
 } from "lucide-react";
-
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
@@ -19,6 +18,7 @@ import Highlight from "@tiptap/extension-highlight";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import FontFamily from '@tiptap/extension-font-family';
+import Placeholder from '@tiptap/extension-placeholder';
 import Saveblog from "./save";
 import { Button } from "@/components/ui/button";
 import { 
@@ -27,6 +27,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import Heading from '@tiptap/extension-heading'
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -36,13 +37,19 @@ import {
 
 // Define extensions with consistent configuration
 const extensions = [
-  StarterKit.configure({}),
+  StarterKit.configure({}),  // Includes Document, Paragraph, and Text by default
+  Placeholder.configure({
+          emptyEditorClass: "min-h-[300px]",
+  }),
   Underline,
   TextAlign.configure({
     types: ["heading", "paragraph"],
     alignments: ["left", "center", "right", "justify"],
   }),
   ListItem,
+  Heading.configure({
+    levels: [1, 2, 3 , 4 ,5 ,6],
+  }),
   BulletList,
   OrderedList,
   Highlight,
@@ -50,23 +57,23 @@ const extensions = [
   Link.configure({
     openOnClick: true,
     autolink: true,
-    defaultProtocol: 'https',
+    defaultProtocol: "https",
   }),
   Image.configure({
     HTMLAttributes: {
-      class: "mx-auto max-h-[30rem] w-full max-w-[90%] object-contain", 
-    }
+      class: "mx-auto max-h-[30rem] w-full max-w-[90%] object-contain",
+    },
   }),
   Color,
   FontFamily.configure({
-    types: ['textStyle'],
-  })
+    types: ["textStyle"],
+  }),
 ];
 
 // Utility function to get button active state
 const getActiveClass = (isActive: boolean) => 
   `p-1 rounded-lg transition-colors ${
-    isActive ? "bg-purple-300 text-primary-foreground" : " hover:bg-secondary/80"
+    isActive ? "bg-secondary/10 text-black " : " hover:bg-secondary/80"
   }`;
 
 // Font options
@@ -91,7 +98,7 @@ const textSizeOptions = [
 export default function Editors() {
   const [isFocused, setIsFocused] = useState(false);
   const [isToolbarExpanded, setIsToolbarExpanded] = useState(false);
-
+  const fileInputRef = useRef<HTMLInputElement>(null);  
   // Create editor instance
   const editor = useEditor({
     extensions,
@@ -99,18 +106,17 @@ export default function Editors() {
     onUpdate: ({ editor }) => {
       setIsFocused(editor.isFocused);
     },
+    
   });
-
+  useEffect(() => {
+    if (editor) {
+      editor.commands.focus(); // Automatically focuses on mount
+    }
+  }, [editor]);
+  
   // Prevent render if editor is not ready
   if (!editor) return null;
 
-  // Image addition handler
-  const addImage = useCallback(() => {
-    const url = window.prompt('Enter image URL');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
 
   // HTML generation and sanitization
   const generateHtml = useCallback(() => {
@@ -160,11 +166,34 @@ export default function Editors() {
     </TooltipProvider>
   );
 
+  // Image addition handler
+  const addImage = useCallback(() => {
+    if (!editor) return;
+    
+    // Open file input dialog
+    fileInputRef.current?.click();
+  }, [editor]);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!editor || !event.target.files || event.target.files.length === 0) return;
+    
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      if (e.target?.result && typeof e.target.result === 'string') {
+        editor.chain().focus().setImage({ src: e.target.result }).run();
+      }
+    };
+    
+    reader.readAsDataURL(file);
+    
+    // Reset file input so the same file can be selected again
+    event.target.value = '';
+  };
+
   return (
     <div className="relative w-full">
-      {/* Responsive Toolbar */}
       <div className="flex flex-col w-full">
-        {/* Mobile/Responsive Toolbar Toggle */}
         <div className="flex justify-center md:hidden mb-2">
           <Button 
             variant="outline" 
@@ -187,29 +216,29 @@ export default function Editors() {
           <div className="flex items-center justify-center gap-2 p-2 bg-secondary/10 rounded-lg flex-wrap">
             {/* Heading Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={getActiveClass(false)}>
-                  <Type />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem 
-                  onClick={() => editor.chain().focus().setParagraph().run()}
-                  className={editor.isActive('paragraph') ? 'bg-primary/20' : ''}
-                >
-                  Paragraph
-                </DropdownMenuItem>
-                {[1, 2, 3, 4, 5, 6].map(level => (
-                  <DropdownMenuItem 
-                    key={level}
-                    onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
-                    className={editor.isActive('heading', { level }) ? 'bg-primary/20' : ''}
-                  >
-                    Heading {level}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="mr-2">
+              <Type />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              onClick={() => editor.chain().focus().setParagraph().run()}
+              className={editor.isActive('paragraph') ? 'bg-primary/20' : ''}
+            >
+              Paragraph
+            </DropdownMenuItem>
+            {[1, 2, 3, 4, 5, 6].map(level => (
+              <DropdownMenuItem
+                key={level}
+                onClick={() => editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
+                className={editor.isActive('heading', { level }) ? 'bg-primary/20' : ''}
+              >
+                Heading {level}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
             {/* Font Family Dropdown */}
             <DropdownMenu>
@@ -362,6 +391,13 @@ export default function Editors() {
             {/* Save Button */}
             <Saveblog generateHtml={() => generateHtml()} />
           </div>
+          <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileChange}
+      />
         </div>
       </div>
 
@@ -373,16 +409,16 @@ export default function Editors() {
           </div>
         )}
 
-        <EditorContent
+<EditorContent
           editor={editor}
-          className="p-4 min-h-[300px] border rounded-lg"
+          className="min-h-[400px] border rounded-lg p-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
           onFocus={() => setIsFocused(true)}
           onBlur={() => {
             if (editor.getHTML() === "<p></p>") {
               setIsFocused(false);
             }
           }}
-        />
+        />  
       </div>
     </div>
   );
