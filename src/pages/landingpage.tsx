@@ -98,7 +98,7 @@ const BlogHomepage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex justify-between items-center py-4">
             <div className={`text-2xl font-bold text-zinc-600 transform transition-transform duration-500 ${isLoaded ? 'translate-x-0' : '-translate-x-full'}`}>
-              vaccum
+              vacuum
             </div>
             
             
@@ -132,9 +132,9 @@ const BlogHomepage: React.FC = () => {
   <div className="max-w-6xl mx-auto px-4">
     <div className="flex flex-col md:flex-row items-center">
       <div className={`md:w-1/2 mb-10 md:mb-0 md:pr-12 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'}`}>
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">About vaccum</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">About vacuum</h2>
         <p className="text-gray-600 mb-4">
-          vaccum was founded in 2025 with a simple mission: to give writers and creators a powerful platform to share their ideas with the world.
+          vacuum was founded in 2025 with a simple mission: to give writers and creators a powerful platform to share their ideas with the world.
         </p>
         <p className="text-gray-600 mb-4">
           Built by Sanjay Sahu using modern technologies including Vite, Cloudflare Workers, Hono, Prisma, and Tailwind CSS, our platform combines speed, reliability, and beautiful design.
@@ -149,7 +149,7 @@ const BlogHomepage: React.FC = () => {
         <div className="relative w-full h-80 md:h-96 rounded-xl overflow-hidden shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
           <img 
             src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fHZhY3V1bXxlbnwwfHx8fDE2ODQ5NzE5NTg&ixlib=rb-4.0.3&q=80&w=1080" 
-            alt="About vaccum" 
+            alt="About " 
             className="w-full h-full object-cover"
           />
         </div>
